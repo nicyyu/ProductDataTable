@@ -26,9 +26,19 @@
         enable-infinite-loading 
         onloadmore={handleLoadMore} 
         selected-rows={preselectedRows}
-        onrowselection={selectedRowHandler}>
+        onrowselection={selectedRowHandler}
+        load-more-offset="20">
       </lightning-datatable>
     </div>
     {loadMoreStatus}
+    <div style="height: 350px;" if:false={boolVisible}>
+      <lightning-datatable 
+        key-field="Id" 
+        data={selectedData} 
+        columns={columns}  
+        selected-rows={preselectedRows}
+        onrowselection={selectedRowHandler}>
+      </lightning-datatable>
+    </div>
   </lightning-card>
 </template>

@@ -28,6 +28,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
 
   boolVisible = true;
   preselectedRows = [];
+  selectedData = [];
 
   connectedCallback() {
       //Get initial chunk of data with offset set at 0
@@ -86,16 +87,19 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     }
     console.log('tempPreselectedRows: ' + tempPreselectedRows);
     this.preselectedRows = tempPreselectedRows;
-
+    this.selectedData = event.detail.selectedRows;
   }
 
   showSelected(event) {
     console.log('Clicked showSelected');
+    //this.data = this.selectedData;
+    
     if(this.boolVisible) {
       this.boolVisible = false;
       console.log("getSelectedRows => ", this.template.querySelector('lightning-datatable').getSelectedRows());
     } else {
       this.boolVisible = true;
     }
+    
   }
 }
