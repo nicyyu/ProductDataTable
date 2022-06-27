@@ -17,9 +17,16 @@
         Displayed Records: {data.length}
       </span>
     </div>
-    <lightning-button onclick={getSelected} label="Get Selected Rows"></lightning-button>
+    <lightning-button onclick={showSelected} label="Show Selected Rows"></lightning-button>
     <div style="height: 350px;" if:true={boolVisible}>
-      <lightning-datatable key-field="Id" data={data} columns={columns} enable-infinite-loading onloadmore={handleLoadMore} selected-rows={preselectedRows}>
+      <lightning-datatable 
+        key-field="Id" 
+        data={data} 
+        columns={columns} 
+        enable-infinite-loading 
+        onloadmore={handleLoadMore} 
+        selected-rows={preselectedRows}
+        onrowselection={selectedRowHandler}>
       </lightning-datatable>
     </div>
     {loadMoreStatus}

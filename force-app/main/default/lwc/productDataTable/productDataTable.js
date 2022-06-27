@@ -73,17 +73,28 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     this.loadMoreStatus = 'Loading';
     // Get new set of records and append to this.data
     this.getRecords();
-    this.preselectedRows = ['0011I000003jvjIQAQ'];
+    //this.preselectedRows = ['0011I000003jvjIQAQ'];
   }
 
-  getSelected(event) {
-    console.log('getSelected');
+  selectedRowHandler(event) {
+    console.log('Row selected');
+    const selectedRows = event.detail.selectedRows;
+    let tempPreselectedRows = [];
+    console.log('selectedRows: ' + selectedRows);
+    for(let i = 0; i < selectedRows.length; i++) {   
+      tempPreselectedRows =[...tempPreselectedRows, selectedRows[i].Id];
+    }
+    console.log('tempPreselectedRows: ' + tempPreselectedRows);
+    this.preselectedRows = tempPreselectedRows;
+
+  }
+
+  showSelected(event) {
+    console.log('Clicked showSelected');
     if(this.boolVisible) {
-      console.log('boolVisible to false');
       this.boolVisible = false;
       console.log("getSelectedRows => ", this.template.querySelector('lightning-datatable').getSelectedRows());
     } else {
-      console.log('boolVisible to true');
       this.boolVisible = true;
     }
   }
