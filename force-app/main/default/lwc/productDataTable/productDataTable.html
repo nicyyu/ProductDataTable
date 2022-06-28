@@ -49,6 +49,9 @@
           <thead>
               <tr class="slds-line-height_reset">
                   <th class="" scope="col">
+                      <div class="slds-truncate" title="Account Link">Account Link</div>
+                  </th>
+                  <th class="" scope="col">
                       <div class="slds-truncate" title="Account Name">Account Name</div>
                   </th>
                   <th class="" scope="col">
@@ -59,6 +62,9 @@
           <tbody>
               <template for:each={selectedData} for:item="obj">
                   <tr class="inputRows" key={obj.Id}>
+                      <th data-label="Account Link" scope="row">
+                        <lightning-formatted-url value={obj.linkAccount} label="Account Link" target="_blank"></lightning-formatted-url>
+                      </th>
                       <th data-label="Account Name" scope="row">
                           <lightning-input type="text" class="fields" variant="label-hidden" label="Account Name" name="Name" value={obj.Name} data-id={obj.Id} onchange={updateValues}></lightning-input>
                       </th>
