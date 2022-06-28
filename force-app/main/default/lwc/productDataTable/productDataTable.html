@@ -1,5 +1,5 @@
 <template>
-  <lightning-card>
+  <lightning-card if:true={viewRowDataView}>
     <div class="slds-var-p-around_small">
       <div>
         <span class="slds-form-element__label slds-text-title_bold slds-align_absolute-center">
@@ -40,5 +40,36 @@
         onrowselection={selectedRowHandler}>
       </lightning-datatable>
     </div>
+    <lightning-button onclick={toEditRowData} label="Next"></lightning-button>
+  </lightning-card>
+  <lightning-card if:true={editRowDataView}>
+    Hello!
+    <div class="slds-m-around_medium">
+      <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_resizable-cols" aria-labelledby="element-with-table-label other-element-with-table-label">
+          <thead>
+              <tr class="slds-line-height_reset">
+                  <th class="" scope="col">
+                      <div class="slds-truncate" title="Account Name">Account Name</div>
+                  </th>
+                  <th class="" scope="col">
+                      <div class="slds-truncate" title="Account Number">Account Number</div>
+                  </th>
+              </tr>
+          </thead>
+          <tbody>
+              <template for:each={selectedData} for:item="obj">
+                  <tr class="inputRows" key={obj.Id}>
+                      <th data-label="Account Name" scope="row">
+                          <lightning-input type="text" class="fields" variant="label-hidden" label="Account Name" name="Name" value={obj.Name} data-id={obj.Id} onchange={updateValues}></lightning-input>
+                      </th>
+                      <td data-label="Account Number">
+                          <lightning-input type="text" class="fields" variant="label-hidden" label="Account Number" name="AccountNumber" value={obj.AccountNumber} data-id={obj.Id} onchange={updateValues}></lightning-input>
+                      </td>
+                  </tr>
+              </template>
+          </tbody>
+      </table>
+    </div>
+    <lightning-button onclick={toViewRowData} label="Back"></lightning-button>
   </lightning-card>
 </template>

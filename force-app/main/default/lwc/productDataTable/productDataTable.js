@@ -12,7 +12,19 @@ const columns = [
       } 
   },
   { label: 'Account Number', fieldName: 'AccountNumber', type: 'text'},
-  { label: 'Phone', fieldName: 'Phone', type: 'text'},
+  { label: 'Phone', fieldName: 'Phone', type: 'text', editable: "true"},
+  { label: 'Created Date', fieldName: 'CreatedDate', type: 'text'}
+];
+
+const quoteItemColumns = [
+  { label: 'Account Name', fieldName: 'linkAccount', type: 'url',
+      typeAttributes: {
+          label: { fieldName: 'Name' },
+          target: '_blank'
+      } 
+  },
+  { label: 'Account Number', fieldName: 'AccountNumber', type: 'text'},
+  { label: 'Phone', fieldName: 'Phone', type: 'text', editable: "true"},
   { label: 'Created Date', fieldName: 'CreatedDate', type: 'text'}
 ];
 
@@ -29,6 +41,8 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   boolVisible = true;
   preselectedRows = [];
   selectedData = [];
+  viewRowDataView = true;
+  editRowDataView = false;
 
   connectedCallback() {
       //Get initial chunk of data with offset set at 0
@@ -102,4 +116,15 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     }
     
   }
+
+  toEditRowData(event) {
+    this.editRowDataView = true;
+    this.viewRowDataView = false;
+  }
+
+  toViewRowData(event) {
+    this.editRowDataView = false;
+    this.viewRowDataView = true;
+  }
+
 }
