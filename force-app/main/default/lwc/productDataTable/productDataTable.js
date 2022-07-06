@@ -1,34 +1,35 @@
-import { LightningElement } from 'lwc';
+import { LightningElement, api, wire, track } from 'lwc';
 
 import { NavigationMixin } from 'lightning/navigation';
 
 import getRecords from '@salesforce/apex/ProductsListController.getRecords';
 
+import getAccountRecord from '@salesforce/apex/ProductsListController.getAccountRecord';
+
 const columns = [
-  { label: 'Account Name', fieldName: 'linkAccount', type: 'url',
+  { label: 'Product Name', fieldName: 'linkName', type: 'url',
       typeAttributes: {
           label: { fieldName: 'Name' },
           target: '_blank'
       } 
   },
-  { label: 'Account Number', fieldName: 'AccountNumber', type: 'text'},
-  { label: 'Phone', fieldName: 'Phone', type: 'text', editable: "true"},
-  { label: 'Created Date', fieldName: 'CreatedDate', type: 'text'}
+  { label: 'Id', fieldName: 'Id', type: 'text'}
 ];
 
 const quoteItemColumns = [
-  { label: 'Account Name', fieldName: 'linkAccount', type: 'url',
+  { label: 'Product Name', fieldName: 'linkName', type: 'url',
       typeAttributes: {
           label: { fieldName: 'Name' },
           target: '_blank'
       } 
   },
-  { label: 'Account Number', fieldName: 'AccountNumber', type: 'text'},
-  { label: 'Phone', fieldName: 'Phone', type: 'text', editable: "true"},
-  { label: 'Created Date', fieldName: 'CreatedDate', type: 'text'}
+  { label: 'Id', fieldName: 'Id', type: 'text'}
 ];
-
 export default class ProductDataTable extends NavigationMixin(LightningElement) {
+  //Quote Id, Account Price Book, Account Currency
+  @api recordId;
+  accountPB;
+  accountCurrency;
   columns = columns;
   data = [];
   error;
@@ -45,41 +46,56 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   editRowDataView = false;
 
   connectedCallback() {
-      //Get initial chunk of data with offset set at 0
+    //Get account currency and price level
+    //Get initial chunk of data with offset set at 0
+    console.log("Connected Callback...");
+    getAccountRecord({quoteId : this.recordId})
+    .then(result => {
+      result = JSON.parse(JSON.stringify(result));
+      console.log("Account Price Book: " + result[0].Account.Price_Book__c);
+      console.log("Account Currency: " + result[0].Account.CurrencyIsoCode);
+      this.accountPB = result[0].Account.Price_Book__c;
+      this.accountCurrency = result[0].Account.CurrencyIsoCode;
       this.getRecords();
+    })
   }
 
   getRecords() {
-    getRecords({offSetCount : this.offSetCount})
-        .then(result => {
-            // Returned result if from sobject and can't be extended so objectifying the result to make it extensible
-            result = JSON.parse(JSON.stringify(result));
-            result.forEach(record => {
-                record.linkAccount = '/' + record.Id;
-            });
-            this.data = [...this.data, ...result];
-            this.error = undefined;
-            this.loadMoreStatus = '';
-            if (this.targetDatatable && this.data.length >= this.totalNumberOfRows) {
-                //stop Infinite Loading when threshold is reached
-                this.targetDatatable.enableInfiniteLoading = false;
-                //Display "No more data to load" when threshold is reached
-                this.loadMoreStatus = 'No more data to load';
-            }
-            //Disable a spinner to signal that data has been loaded
-            if (this.targetDatatable) this.targetDatatable.isLoading = false;
-        })
-        .catch(error => {
-            this.error = error;
-            this.data = undefined;
-            console.log('error : ' + JSON.stringify(this.error));
-        });
+    console.log("getRecords...");
+    getRecords({
+      offSetCount : this.offSetCount,
+      accountPB : this.accountPB,
+      accountCurrency : this.accountCurrency
+    })
+    .then(result => {
+      // Returned result if from sobject and can't be extended so objectifying the result to make it extensible
+      result = JSON.parse(JSON.stringify(result));
+      result.forEach(record => {
+          record.linkName = '/' + record.Id;
+      });
+      this.data = [...this.data, ...result];
+      this.error = undefined;
+      this.loadMoreStatus = '';
+      if (this.targetDatatable && this.data.length >= this.totalNumberOfRows) {
+          //stop Infinite Loading when threshold is reached
+          this.targetDatatable.enableInfiniteLoading = false;
+          //Display "No more data to load" when threshold is reached
+          this.loadMoreStatus = 'No more data to load';
+      }
+      //Disable a spinner to signal that data has been loaded
+      if (this.targetDatatable) this.targetDatatable.isLoading = false;
+    })
+    .catch(error => {
+      this.error = error;
+      this.data = undefined;
+      console.log('error : ' + JSON.stringify(this.error));
+    });
   }
 
   handleLoadMore(event) {
     event.preventDefault();
     // increase the offset count by 20 on every loadmore event
-    this.offSetCount = this.offSetCount + 2;
+    this.offSetCount = this.offSetCount + 20;
     //Display a spinner to signal that data is being loaded
     event.target.isLoading = true;
     //Set the onloadmore event taraget to make it visible to imperative call response to apex.
