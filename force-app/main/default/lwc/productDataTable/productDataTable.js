@@ -25,6 +25,7 @@ const quoteItemColumns = [
   },
   { label: 'Id', fieldName: 'Id', type: 'text'}
 ];
+
 export default class ProductDataTable extends NavigationMixin(LightningElement) {
   //Quote Id, Account Price Book, Account Currency
   @api recordId;
@@ -45,6 +46,10 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   viewRowDataView = true;
   editRowDataView = false;
 
+  mapFinal;
+
+  listFinal;
+
   connectedCallback() {
     //Get account currency and price level
     //Get initial chunk of data with offset set at 0
@@ -58,6 +63,11 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
       this.accountCurrency = result[0].Account.CurrencyIsoCode;
       this.getRecords();
     })
+    .catch(error => {
+      this.error = error;
+      this.data = undefined;
+      console.log('error : ' + JSON.stringify(this.error));
+    });
   }
 
   getRecords() {
@@ -104,7 +114,6 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     this.loadMoreStatus = 'Loading';
     // Get new set of records and append to this.data
     this.getRecords();
-    //this.preselectedRows = ['0011I000003jvjIQAQ'];
   }
 
   selectedRowHandler(event) {
@@ -118,19 +127,40 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     console.log('tempPreselectedRows: ' + tempPreselectedRows);
     this.preselectedRows = tempPreselectedRows;
     this.selectedData = event.detail.selectedRows;
+
+    const mapTemp = new Map();
+    const listTemp = [];
+
+    this.selectedData.forEach(record => {
+
+      let recordInput = {
+        Id: "123",
+        QuoteId: this.recordId,
+        Product2Id: record.Product2Id,
+        UnitPrice: record.UnitPrice,
+        Discount: 0,
+        Quantity: 0
+      }
+
+      mapTemp.set(record.Id, recordInput);
+
+      this.mapFinal = mapTemp;
+
+      listTemp.push(recordInput);
+
+      this.listFinal = listTemp;
+
+    })
   }
 
   showSelected(event) {
     console.log('Clicked showSelected');
-    //this.data = this.selectedData;
-    
     if(this.boolVisible) {
       this.boolVisible = false;
       console.log("getSelectedRows => ", this.template.querySelector('lightning-datatable').getSelectedRows());
     } else {
       this.boolVisible = true;
     }
-    
   }
 
   toEditRowData(event) {
@@ -143,4 +173,9 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     this.viewRowDataView = true;
   }
 
+  updateValues(event) {
+    console.log("event.target.value: " + event.target.value);
+    console.log("event.target.label: " + event.target.label);
+    console.log("event.target.data-id: " + event.target.dataset.id);
+  }
 }

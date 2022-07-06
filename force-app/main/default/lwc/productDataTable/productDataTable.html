@@ -65,6 +65,7 @@
                   </th>
               </tr>
           </thead>
+          <!--
           <tbody>
               <template for:each={selectedData} for:item="obj">
                   <tr class="inputRows" key={obj.Id}>
@@ -77,6 +78,19 @@
                   </tr>
               </template>
           </tbody>
+          -->
+          <tbody>
+            <template for:each={listFinal} for:item="obj">
+                <tr class="inputRows" key={obj.Id}>
+                    <th data-label="Product Name" scope="row">
+                      <lightning-formatted-url value={obj.linkName} label={obj.Id} target="_blank"></lightning-formatted-url>
+                    </th>
+                    <th data-label="Product Id" scope="row">
+                        <lightning-input type="text" class="fields" variant="label-hidden" label="Product Id" name="Name" value={obj.Id} data-id={obj.Id} onchange={updateValues}></lightning-input>
+                    </th>
+                </tr>
+            </template>
+        </tbody>
       </table>
     </div>
     <div>
