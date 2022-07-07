@@ -49,6 +49,8 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
 
   PBEListFinal = [];
 
+  queryTerm;
+
   connectedCallback() {
     //Get account currency and price level
     //Get initial chunk of data with offset set at 0
@@ -113,6 +115,14 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     this.loadMoreStatus = 'Loading';
     // Get new set of records and append to this.data
     this.getRecords();
+  }
+
+  handleKeyUp(event) {
+    console.log('handleKeyUp');
+    const isEnterKey = evt.keyCode === 13;
+    if (isEnterKey) {
+      this.queryTerm = evt.target.value;
+    }
   }
 
   selectedRowHandler(event) {
