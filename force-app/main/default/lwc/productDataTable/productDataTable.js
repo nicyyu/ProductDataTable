@@ -6,17 +6,9 @@ import getRecords from '@salesforce/apex/ProductsListController.getRecords';
 
 import getAccountRecord from '@salesforce/apex/ProductsListController.getAccountRecord';
 
-const columns = [
-  { label: 'Product Name', fieldName: 'linkName', type: 'url',
-      typeAttributes: {
-          label: { fieldName: 'Name' },
-          target: '_blank'
-      } 
-  },
-  { label: 'Id', fieldName: 'Id', type: 'text'}
-];
+import createQuoteLines from '@salesforce/apex/ProductsListController.createQuoteLines';
 
-const quoteItemColumns = [
+const columns = [
   { label: 'Product Name', fieldName: 'linkName', type: 'url',
       typeAttributes: {
           label: { fieldName: 'Name' },
@@ -42,13 +34,20 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
 
   boolVisible = true;
   preselectedRows = [];
+  preselectedPrdRows = [];
   selectedData = [];
   viewRowDataView = true;
   editRowDataView = false;
 
-  mapFinal;
+  mapFinal = new Map();
 
-  listFinal;
+  mapFinalMap = new Map();
+
+  prdPBEMapFinal = new Map();
+
+  listFinal = [];
+
+  PBEListFinal = [];
 
   connectedCallback() {
     //Get account currency and price level
@@ -120,37 +119,55 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     console.log('Row selected');
     const selectedRows = event.detail.selectedRows;
     let tempPreselectedRows = [];
-    console.log('selectedRows: ' + selectedRows);
+    let tempPreselectedPrdRows = [];
+    //console.log('selectedRows: ' + selectedRows);
     for(let i = 0; i < selectedRows.length; i++) {   
       tempPreselectedRows =[...tempPreselectedRows, selectedRows[i].Id];
+      tempPreselectedPrdRows =[...tempPreselectedPrdRows, selectedRows[i].Product2Id];
     }
-    console.log('tempPreselectedRows: ' + tempPreselectedRows);
+
     this.preselectedRows = tempPreselectedRows;
+    this.preselectedPrdRows = tempPreselectedPrdRows;
     this.selectedData = event.detail.selectedRows;
 
-    const mapTemp = new Map();
-    const listTemp = [];
+    let prdPBEMapFinalKeys = [...this.prdPBEMapFinal.keys()];
+
+    if(!(prdPBEMapFinalKeys.length == 0)) {
+      //console.log("prdPBEMapFinal is NOT empty!");
+      let difference = prdPBEMapFinalKeys.filter(x => !this.preselectedPrdRows.includes(x));
+      console.log("difference: " + difference);
+      difference.forEach(PrdId => {
+        if(this.prdPBEMapFinal.has(PrdId)) {
+          this.prdPBEMapFinal.delete(PrdId);
+        }
+      })
+    }
+
+    //console.log("prdPBEMapFinal Keys after delete: " + [...this.prdPBEMapFinal.keys()]);
 
     this.selectedData.forEach(record => {
 
-      let recordInput = {
-        Id: "123",
-        QuoteId: this.recordId,
-        Product2Id: record.Product2Id,
-        UnitPrice: record.UnitPrice,
-        Discount: 0,
-        Quantity: 0
+      if(!(this.prdPBEMapFinal.has(record.Product2Id))) {
+        let recordInput = {
+          PBEId: record.Id,
+          linkName: record.linkName,
+          Product2Name: record.Product2.Name,
+          QuoteId: this.recordId,
+          Product2Id: record.Product2Id,
+          IsActive: record.IsActive,
+          UnitPrice: record.UnitPrice,
+          Discount: '',
+          Quantity: '',
+          Comment: ''
+        }
+        this.prdPBEMapFinal.set(record.Product2Id, recordInput);
       }
 
-      mapTemp.set(record.Id, recordInput);
-
-      this.mapFinal = mapTemp;
-
-      listTemp.push(recordInput);
-
-      this.listFinal = listTemp;
-
     })
+
+    console.log("prdPBEMapFinal Keys: " + [...this.prdPBEMapFinal.keys()]);
+    this.PBEListFinal = [...this.prdPBEMapFinal.values()];
+
   }
 
   showSelected(event) {
@@ -164,18 +181,62 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   }
 
   toEditRowData(event) {
+    this.PBEListFinal = [...this.prdPBEMapFinal.values()];
     this.editRowDataView = true;
     this.viewRowDataView = false;
   }
 
   toViewRowData(event) {
+    this.PBEListFinal = [...this.prdPBEMapFinal.values()];
     this.editRowDataView = false;
     this.viewRowDataView = true;
   }
 
   updateValues(event) {
-    console.log("event.target.value: " + event.target.value);
-    console.log("event.target.label: " + event.target.label);
     console.log("event.target.data-id: " + event.target.dataset.id);
+    console.log("event.target.label: " + event.target.label);
+    console.log("event.target.value: " + event.target.value);
+    
+    let IdChanged = event.target.dataset.id
+    let labelChanged = event.target.label;
+    let valueChanged = event.target.value;
+    let newValue = {
+      [labelChanged]: valueChanged
+    }
+    let newValueKeys = Object.keys(newValue);
+
+    let originalObj = this.prdPBEMapFinal.get(IdChanged);
+
+    newValueKeys.map(x => {
+      originalObj[x] =  newValue[x];
+    })
+
+    this.prdPBEMapFinal.set(IdChanged, originalObj);
+    
   }
+
+  saveQuoteLines(event) {
+    console.log("saveQuoteLines");
+    let quoteLinesList = [];
+
+    this.PBEListFinal.forEach(peb => {
+      if(peb.Comment == '') {
+        peb.Comment = 'Empty';
+      }
+      if(peb.Discount == '') {
+        peb.Discount = 0;
+      }
+      quoteLinesList.push(peb);
+    })
+
+    createQuoteLines({
+      quoteLines : JSON.stringify(quoteLinesList)
+    })
+    .then(result => {
+      // Returned result if from sobject and can't be extended so objectifying the result to make it extensible
+      result = JSON.parse(JSON.stringify(result));
+      console.log("results: " + result);
+    })
+  }
+  
 }

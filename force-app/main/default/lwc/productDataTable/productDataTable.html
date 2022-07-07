@@ -52,7 +52,6 @@
   </lightning-card>
   <!--edit selected products-->
   <lightning-card if:true={editRowDataView}>
-    This is the selected product table!
     <div class="slds-m-around_medium">
       <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_resizable-cols" aria-labelledby="element-with-table-label other-element-with-table-label">
           <thead>
@@ -61,7 +60,16 @@
                       <div class="slds-truncate" title="Product Name">Product Name</div>
                   </th>
                   <th class="" scope="col">
-                      <div class="slds-truncate" title="Product Name">Product Id</div>
+                    <div class="slds-truncate" title="Product Quantity">Product Quantity</div>
+                  </th>
+                  <th class="" scope="col">
+                      <div class="slds-truncate" title="Sales Price">Sales Price</div>
+                  </th>
+                  <th class="" scope="col">
+                    <div class="slds-truncate" title="Discount">Discount</div>
+                  </th>
+                  <th class="" scope="col">
+                    <div class="slds-truncate" title="Line Item Comment">Line Item Comment</div>
                   </th>
               </tr>
           </thead>
@@ -80,13 +88,22 @@
           </tbody>
           -->
           <tbody>
-            <template for:each={listFinal} for:item="obj">
+            <template for:each={PBEListFinal} for:item="obj">
                 <tr class="inputRows" key={obj.Id}>
                     <th data-label="Product Name" scope="row">
-                      <lightning-formatted-url value={obj.linkName} label={obj.Id} target="_blank"></lightning-formatted-url>
+                      <lightning-formatted-url value={obj.linkName} label={obj.Product2Name} target="_blank"></lightning-formatted-url>
                     </th>
-                    <th data-label="Product Id" scope="row">
-                        <lightning-input type="text" class="fields" variant="label-hidden" label="Product Id" name="Name" value={obj.Id} data-id={obj.Id} onchange={updateValues}></lightning-input>
+                    <th data-label="Product Quantity" scope="row">
+                      <lightning-input type="number" class="fields" variant="label-hidden" label="Quantity" name="Product2Id" value={obj.Quantity} step="0" data-id={obj.Product2Id} onchange={updateValues}></lightning-input>
+                    </th>
+                    <th data-label="Sales Price" scope="row">
+                      <lightning-input type="number" class="fields" variant="label-hidden" label="UnitPrice" name="Product2Id" value={obj.UnitPrice} formatter="currency" step="0.01" data-id={obj.Product2Id} onchange={updateValues}></lightning-input>
+                    </th>
+                    <th data-label="Discount" scope="row">
+                      <lightning-input type="number" class="fields" variant="label-hidden" label="Discount" name="Product2Id" value={obj.Discount} formatter="percent" step="0.01" data-id={obj.Product2Id} onchange={updateValues}></lightning-input>
+                    </th>
+                    <th data-label="Line Item Comment" scope="row">
+                        <lightning-input type="text" class="fields" variant="label-hidden" label="Comment" name="Product2Id" value={obj.Comment} data-id={obj.Product2Id} onchange={updateValues}></lightning-input>
                     </th>
                 </tr>
             </template>
@@ -95,7 +112,7 @@
     </div>
     <div>
       <lightning-button onclick={toViewRowData} label="Back"></lightning-button>
-      <lightning-button onclick={toViewRowData} label="Save"></lightning-button>
+      <lightning-button onclick={saveQuoteLines} label="Save"></lightning-button>
     </div>
   </lightning-card>
 </template>
