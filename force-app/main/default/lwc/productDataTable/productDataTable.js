@@ -26,11 +26,14 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   columns = columns;
   data = [];
   error;
-  totalNumberOfRows = 50; // stop the infinite load after this threshold count
+  totalNumberOfRows = 100; // stop the infinite load after this threshold count
   // offSetCount to send to apex to get the subsequent result. 0 in offSetCount signifies for the initial load of records on component load.
   offSetCount = 0;
   loadMoreStatus;
   targetDatatable; // capture the loadmore event to fetch data and stop infinite loading
+  loadMore = true;
+  searchMethod;
+  queryTerm;
 
   boolVisible = true;
   preselectedRows = [];
@@ -38,23 +41,14 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   selectedData = [];
   viewRowDataView = true;
   editRowDataView = false;
-
-  mapFinal = new Map();
-
-  mapFinalMap = new Map();
-
   prdPBEMapFinal = new Map();
-
-  listFinal = [];
-
   PBEListFinal = [];
-
-  queryTerm;
 
   connectedCallback() {
     //Get account currency and price level
     //Get initial chunk of data with offset set at 0
     console.log("Connected Callback...");
+    this.searchMethod = "Loading";
     getAccountRecord({quoteId : this.recordId})
     .then(result => {
       result = JSON.parse(JSON.stringify(result));
@@ -76,7 +70,9 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     getRecords({
       offSetCount : this.offSetCount,
       accountPB : this.accountPB,
-      accountCurrency : this.accountCurrency
+      accountCurrency : this.accountCurrency,
+      searchMethod : this.searchMethod,
+      queryTerm : this.queryTerm
     })
     .then(result => {
       // Returned result if from sobject and can't be extended so objectifying the result to make it extensible
@@ -104,6 +100,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   }
 
   handleLoadMore(event) {
+    console.log('Load More');
     event.preventDefault();
     // increase the offset count by 20 on every loadmore event
     this.offSetCount = this.offSetCount + 20;
@@ -118,10 +115,28 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   }
 
   handleKeyUp(event) {
-    console.log('handleKeyUp');
-    const isEnterKey = evt.keyCode === 13;
-    if (isEnterKey) {
-      this.queryTerm = evt.target.value;
+    const isEnterKey = event.keyCode === 13;
+    let queryTerm = event.target.value;
+    console.log("queryTerm: " + queryTerm);
+    if (isEnterKey && queryTerm) {
+      console.log('Hit enter key and queryTerm NOT null!');
+      this.loadMoreStatus = '';
+      this.targetDatatable.enableInfiniteLoading = true;
+      this.searchMethod = "Searching";
+      this.data = [];
+      this.offSetCount = 0;
+      this.queryTerm = queryTerm;
+      this.getRecords();
+    }
+    if (isEnterKey && !queryTerm) {
+      console.log('Hit enter key and queryTerm null!');
+      this.loadMoreStatus = '';
+      this.targetDatatable.enableInfiniteLoading = true;
+      this.searchMethod = "Loading";
+      this.data = [];
+      this.offSetCount = 0;
+      this.queryTerm = queryTerm;
+      this.getRecords();
     }
   }
 
@@ -152,8 +167,6 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
         }
       })
     }
-
-    //console.log("prdPBEMapFinal Keys after delete: " + [...this.prdPBEMapFinal.keys()]);
 
     this.selectedData.forEach(record => {
 
@@ -246,7 +259,20 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
       // Returned result if from sobject and can't be extended so objectifying the result to make it extensible
       result = JSON.parse(JSON.stringify(result));
       console.log("results: " + result);
+      this.navigateToRecordPage();
     })
+  }
+
+  navigateToRecordPage() {
+    console.log("navigateToRecordPage");
+    this[NavigationMixin.Navigate]({
+        type: 'standard__recordPage',
+        attributes: {
+            recordId: this.recordId,
+            objectApiName: 'Quote',
+            actionName: 'view'
+        }
+    });
   }
   
 }

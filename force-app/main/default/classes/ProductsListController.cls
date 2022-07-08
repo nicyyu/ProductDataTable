@@ -6,11 +6,21 @@ public class ProductsListController {
     }
 
     @AuraEnabled
-    public static List<PriceBookEntry> getRecords(Integer offSetCount, String accountPB, String accountCurrency) {
-        return [SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive
-                FROM PriceBookEntry 
-                WHERE CurrencyIsoCode =: accountCurrency AND PriceBookName__c =: accountPB
-                LIMIT 20 OFFSET :offSetCount];
+    public static List<PriceBookEntry> getRecords(Integer offSetCount, String accountPB, String accountCurrency, String searchMethod, String queryTerm) {
+        List<PriceBookEntry> resultPBE = new List<PriceBookEntry>();
+        if(searchMethod == 'Loading') {
+            resultPBE = [SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive
+                    FROM PriceBookEntry 
+                    WHERE CurrencyIsoCode =: accountCurrency AND PriceBookName__c =: accountPB
+                    LIMIT 20 OFFSET :offSetCount];
+        }
+        if(searchMethod == 'Searching') {
+            resultPBE = [SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive
+                    FROM PriceBookEntry 
+                    WHERE CurrencyIsoCode =: accountCurrency AND PriceBookName__c =: accountPB
+                    LIMIT 20 OFFSET :offSetCount];
+        }
+        return resultPBE;
     }
 
     @AuraEnabled
@@ -33,10 +43,15 @@ public class ProductsListController {
         }
 
         if(QLIList.size() > 0) {
-            insert QLIList;
+            try {
+                insert QLIList;
+                return 'Inserted all QLIList';
+            } catch(DMLException e) {
+                throw new DMLException('Unable to Perform the DML Operation on QLIList : ' + e.getMessage());
+            }
+        } else {
+            return 'QLIList is empty';
         }
-
-        return 'Got your request';
 
     }
 
