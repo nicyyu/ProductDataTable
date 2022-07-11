@@ -44,16 +44,39 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   prdPBEMapFinal = new Map();
   PBEListFinal = [];
 
-  valueFields;
-  valueOperator;
+  //Multi-Search options and operator
   options = [
-    { label: 'Product Code', value: 'ProductCode' },
-    { label: 'In Progress', value: 'inProgress' }
+    { label: 'Product Name', value: 'Name' },
+    { label: 'Product Family', value: 'Family' },
+    { label: 'Sales Order Material', value: 'Sales_Order_Material__c' },
+    { label: 'Item Category', value: 'Item_Category__c' },
+    { label: 'Item Division', value: 'Item_Division__c' },
+    { label: 'Product Description', value: 'Description' },
+    { label: 'Product Description - French', value: 'Product_Description_French__c' },
+    { label: 'Extended Description', value: 'Extended_Description__c' },
+    { label: 'Internal Notes', value: 'Internal_Notes__c' },
   ]
   operators = [
     { label: '   =   ', value: 'equal' },
-    { label: 'Contains', value: 'contains' }
+    { label: 'Contains', value: 'contain' }
   ]
+  //Multi-Search values
+  //SR1
+  SR1Field;
+  SR1Operator;
+  SR1Input;
+  //SR2
+  SR2Field;
+  SR2Operator;
+  SR2Input;
+  //SR3
+  SR3Field;
+  SR3Operator;
+  SR3Input;
+  //Mutilpe Rows Search
+  //queryTermMultiSearch = new Map();
+  queryTermMultiSearch = {};
+
 
   connectedCallback() {
     //Get account currency and price level
@@ -83,7 +106,8 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
       accountPB : this.accountPB,
       accountCurrency : this.accountCurrency,
       searchMethod : this.searchMethod,
-      queryTerm : this.queryTerm
+      queryTerm : this.queryTerm,
+      queryTermMultiSearch : JSON.stringify(this.queryTermMultiSearch)
     })
     .then(result => {
       // Returned result if from sobject and can't be extended so objectifying the result to make it extensible
@@ -157,12 +181,51 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
 
   handleChange(event) {
     console.log("User is changing Muti-Search!")
+    const elementSR1Field = this.template.querySelector('[data-id="SR1-field"]');
+    const elementSR1Operator = this.template.querySelector('[data-id="SR1-operator"]');
+    const elementSR1Input = this.template.querySelector('[data-id="SR1-input"]');
+    console.log("elementSR1: " + elementSR1Field.value + " - " + elementSR1Operator.value + " - " + elementSR1Input.value);
+    const elementSR2Field = this.template.querySelector('[data-id="SR2-field"]');
+    const elementSR2Operator = this.template.querySelector('[data-id="SR2-operator"]');
+    const elementSR2Input = this.template.querySelector('[data-id="SR2-input"]');
+    console.log("elementSR2: " + elementSR2Field.value + " - " + elementSR2Operator.value + " - " + elementSR2Input.value);
+    const elementSR3Field = this.template.querySelector('[data-id="SR3-field"]');
+    const elementSR3Operator = this.template.querySelector('[data-id="SR3-operator"]');
+    const elementSR3Input = this.template.querySelector('[data-id="SR3-input"]');
+    console.log("elementSR3: " + elementSR3Field.value + " - " + elementSR3Operator.value + " - " + elementSR3Input.value);
+
+    if(elementSR1Field.value && elementSR1Operator.value  && elementSR1Input.value){
+      let SR1Obj = {elementSRField: elementSR1Field.value, elementSROperator: elementSR1Operator.value, elementSRInput: elementSR1Input.value};
+      //this.queryTermMultiSearch.set('elementSR1', SR1Obj);
+      this.queryTermMultiSearch['elementSR1'] = SR1Obj
+    }
+
+    if(elementSR2Field.value && elementSR2Operator.value  && elementSR2Input.value){
+      let SR2Obj = {elementSRField: elementSR2Field.value, elementSROperator: elementSR2Operator.value, elementSRInput: elementSR2Input.value};
+      //this.queryTermMultiSearch.set('elementSR2', SR2Obj);
+      this.queryTermMultiSearch['elementSR2'] = SR2Obj
+    }
+
+    if(elementSR3Field.value && elementSR3Operator.value  && elementSR3Input.value){
+      let SR3Obj = {elementSRField: elementSR3Field.value, elementSROperator: elementSR3Operator.value, elementSRInput: elementSR3Input.value};
+      //this.queryTermMultiSearch.set('elementSR3', SR3Obj);
+      this.queryTermMultiSearch['elementSR3'] = SR3Obj
+    }    
+    
+    console.log("queryTermMultiSearch: " + JSON.stringify(this.queryTermMultiSearch));
 
   }
 
   handleKeyUpMultiSearch(event) {
-    console.log("Muti-Search KeyUp!")
-
+    const isEnterKey = event.keyCode === 13;
+    if (isEnterKey) {
+      console.log("Muti-Search Enter KeyUp!")
+      this.searchMethod = "SearchingMultiRows";
+      this.offSetCount = 0;
+      if(this.queryTermMultiSearch){
+        this.getRecords();
+      };
+    }
   }
 
   selectedRowHandler(event) {

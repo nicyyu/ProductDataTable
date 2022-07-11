@@ -6,7 +6,7 @@ public class ProductsListController {
     }
 
     @AuraEnabled
-    public static List<PriceBookEntry> getRecords(Integer offSetCount, String accountPB, String accountCurrency, String searchMethod, String queryTerm) {
+    public static List<PriceBookEntry> getRecords(Integer offSetCount, String accountPB, String accountCurrency, String searchMethod, String queryTerm, String queryTermMultiSearch) {
         List<PriceBookEntry> resultPBE = new List<PriceBookEntry>();
         if(searchMethod == 'Loading') {
             resultPBE = [SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive
@@ -20,7 +20,44 @@ public class ProductsListController {
                     WHERE CurrencyIsoCode =: accountCurrency AND PriceBookName__c =: accountPB
                     LIMIT 20 OFFSET :offSetCount];
         }
+        //SearchingMultiRows
+        if(searchMethod == 'SearchingMultiRows') {
+            String returnStr = SearchingMultiRowsParse(queryTermMultiSearch);
+            /*
+            resultPBE = [SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive
+                    FROM PriceBookEntry 
+                    WHERE CurrencyIsoCode =: accountCurrency AND PriceBookName__c =: accountPB
+                    LIMIT 20 OFFSET :offSetCount];
+            */
+            String SOQLStr = 'SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive FROM PriceBookEntry WHERE ';
+            SOQLStr = SOQLStr + returnStr + 'LIMIT 20 OFFSET 20';
+            resultPBE = Database.query(SOQLStr);
+        }
         return resultPBE;
+    }
+
+    public static String SearchingMultiRowsParse(String queryTermMultiSearch) {
+        //System.debug('queryTermMultiSearch: ' + queryTermMultiSearch);
+        String query = '';
+        Map<String, rowSearchData> searchTermList = (Map<String, rowSearchData>) JSON.deserialize(queryTermMultiSearch, Map<String, rowSearchData>.class);
+        System.debug('searchTermList Size: ' + searchTermList.size());
+        System.debug('searchTermList Values: ' + searchTermList.values());
+        for(rowSearchData SRD : searchTermList.values()){
+            String operator;
+            String keyWords;
+            if(SRD.elementSROperator == 'equal'){
+                operator = ' = ';
+                keyWords = SRD.elementSRInput;
+            }
+            if(SRD.elementSROperator == 'contain'){
+                operator = ' LIKE ';
+                keyWords = '\'%' + SRD.elementSRInput + '%\'';
+            }
+
+            query = SRD.elementSRField + operator + keyWords;
+
+        }
+        return query;
     }
 
     @AuraEnabled
@@ -53,6 +90,12 @@ public class ProductsListController {
             return 'QLIList is empty';
         }
 
+    }
+
+    public class rowSearchData{
+        String elementSRField {get; set;}
+        String elementSROperator {get; set;}
+        String elementSRInput {get; set;}
     }
 
     private class quoteLine{
