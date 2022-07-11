@@ -44,6 +44,17 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   prdPBEMapFinal = new Map();
   PBEListFinal = [];
 
+  valueFields;
+  valueOperator;
+  options = [
+    { label: 'Product Code', value: 'ProductCode' },
+    { label: 'In Progress', value: 'inProgress' }
+  ]
+  operators = [
+    { label: '   =   ', value: 'equal' },
+    { label: 'Contains', value: 'contains' }
+  ]
+
   connectedCallback() {
     //Get account currency and price level
     //Get initial chunk of data with offset set at 0
@@ -121,7 +132,9 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     if (isEnterKey && queryTerm) {
       console.log('Hit enter key and queryTerm NOT null!');
       this.loadMoreStatus = '';
-      this.targetDatatable.enableInfiniteLoading = true;
+      if(this.targetDatatable != null){
+        this.targetDatatable.enableInfiniteLoading = true;
+      }
       this.searchMethod = "Searching";
       this.data = [];
       this.offSetCount = 0;
@@ -131,13 +144,25 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     if (isEnterKey && !queryTerm) {
       console.log('Hit enter key and queryTerm null!');
       this.loadMoreStatus = '';
-      this.targetDatatable.enableInfiniteLoading = true;
+      if(this.targetDatatable != null){
+        this.targetDatatable.enableInfiniteLoading = true;
+      }
       this.searchMethod = "Loading";
       this.data = [];
       this.offSetCount = 0;
       this.queryTerm = queryTerm;
       this.getRecords();
     }
+  }
+
+  handleChange(event) {
+    console.log("User is changing Muti-Search!")
+
+  }
+
+  handleKeyUpMultiSearch(event) {
+    console.log("Muti-Search KeyUp!")
+
   }
 
   selectedRowHandler(event) {
