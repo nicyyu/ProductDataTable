@@ -23,14 +23,8 @@ public class ProductsListController {
         //SearchingMultiRows
         if(searchMethod == 'SearchingMultiRows') {
             String returnStr = SearchingMultiRowsParse(queryTermMultiSearch);
-            /*
-            resultPBE = [SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive
-                    FROM PriceBookEntry 
-                    WHERE CurrencyIsoCode =: accountCurrency AND PriceBookName__c =: accountPB
-                    LIMIT 20 OFFSET :offSetCount];
-            */
-            String SOQLStr = 'SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive FROM PriceBookEntry WHERE ';
-            SOQLStr = SOQLStr + returnStr + 'LIMIT 20 OFFSET 20';
+            String SOQLStr = 'SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive FROM PriceBookEntry WHERE CurrencyIsoCode = :accountCurrency' + ' AND ' + 'PriceBookName__c = :accountPB';
+            SOQLStr = SOQLStr + returnStr + 'LIMIT 20 OFFSET :offSetCount';
             resultPBE = Database.query(SOQLStr);
         }
         return resultPBE;
@@ -53,9 +47,12 @@ public class ProductsListController {
                 operator = ' LIKE ';
                 keyWords = '\'%' + SRD.elementSRInput + '%\'';
             }
-
-            query = SRD.elementSRField + operator + keyWords;
-
+            if(query == ''){
+                query = ' AND ' + SRD.elementSRField + operator + keyWords;
+            }
+            if(query != ''){
+                query = query + ' AND ' + SRD.elementSRField + operator + keyWords;
+            }
         }
         return query;
     }

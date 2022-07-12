@@ -15,7 +15,9 @@ const columns = [
           target: '_blank'
       } 
   },
-  { label: 'Id', fieldName: 'Id', type: 'text'}
+  { label: 'Id', fieldName: 'Id', type: 'text'},
+  { label: 'Unit Price', fieldName: 'UnitPrice', type: 'currency'},
+  { label: 'SAP Code', fieldName: 'Product_SAP_Id__c', type: 'text'}
 ];
 
 export default class ProductDataTable extends NavigationMixin(LightningElement) {
@@ -47,14 +49,14 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   //Multi-Search options and operator
   options = [
     { label: 'Product Name', value: 'Name' },
-    { label: 'Product Family', value: 'Family' },
-    { label: 'Sales Order Material', value: 'Sales_Order_Material__c' },
-    { label: 'Item Category', value: 'Item_Category__c' },
-    { label: 'Item Division', value: 'Item_Division__c' },
-    { label: 'Product Description', value: 'Description' },
-    { label: 'Product Description - French', value: 'Product_Description_French__c' },
-    { label: 'Extended Description', value: 'Extended_Description__c' },
-    { label: 'Internal Notes', value: 'Internal_Notes__c' },
+    { label: 'Product Family', value: 'Product2.Family' },
+    { label: 'Sales Order Material', value: 'Product2.Sales_Order_Material__c' },
+    { label: 'Item Category', value: 'Product2.Item_Category__c' },
+    { label: 'Item Division', value: 'Product2.Item_Division__c' },
+    { label: 'Product Description', value: 'Product2.Description' },
+    { label: 'Product Description - French', value: 'Product2.Product_Description_French__c' },
+    { label: 'Extended Description', value: 'Product2.Extended_Description__c' },
+    { label: 'Internal Notes', value: 'Product2.Internal_Notes__c' },
   ]
   operators = [
     { label: '   =   ', value: 'equal' },
@@ -74,7 +76,6 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   SR3Operator;
   SR3Input;
   //Mutilpe Rows Search
-  //queryTermMultiSearch = new Map();
   queryTermMultiSearch = {};
 
 
@@ -221,6 +222,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     if (isEnterKey) {
       console.log("Muti-Search Enter KeyUp!")
       this.searchMethod = "SearchingMultiRows";
+      this.data = [];
       this.offSetCount = 0;
       if(this.queryTermMultiSearch){
         this.getRecords();
