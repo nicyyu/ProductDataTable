@@ -8,19 +8,24 @@ public class ProductsListController {
     @AuraEnabled
     public static List<PriceBookEntry> getRecords(Integer offSetCount, String accountPB, String accountCurrency, String searchMethod, String queryTerm, String queryTermMultiSearch) {
         List<PriceBookEntry> resultPBE = new List<PriceBookEntry>();
+        //Default loading Price Book Entries
         if(searchMethod == 'Loading') {
             resultPBE = [SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive
                     FROM PriceBookEntry 
                     WHERE CurrencyIsoCode =: accountCurrency AND PriceBookName__c =: accountPB
                     LIMIT 20 OFFSET :offSetCount];
         }
+        //Single text searching
         if(searchMethod == 'Searching') {
-            resultPBE = [SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive
-                    FROM PriceBookEntry 
-                    WHERE CurrencyIsoCode =: accountCurrency AND PriceBookName__c =: accountPB
-                    LIMIT 20 OFFSET :offSetCount];
+            List<Product2> productSearch = ((List<Product2>)[FIND :queryTerm IN ALL FIELDS RETURNING Product2(Id LIMIT 20 OFFSET :offSetCount)][0]);
+            System.debug('productSearch: ' + productSearch);
+            resultPBE = [
+                SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive
+                FROM PriceBookEntry 
+                WHERE CurrencyIsoCode = :accountCurrency AND PriceBookName__c = :accountPB AND Product2Id IN :productSearch];
+                //LIMIT 20 OFFSET :offSetCount];
         }
-        //SearchingMultiRows
+        //Multi-fields Searching
         if(searchMethod == 'SearchingMultiRows') {
             String returnStr = SearchingMultiRowsParse(queryTermMultiSearch);
             String SOQLStr = 'SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive FROM PriceBookEntry WHERE CurrencyIsoCode = :accountCurrency' + ' AND ' + 'PriceBookName__c = :accountPB';
@@ -31,17 +36,16 @@ public class ProductsListController {
     }
 
     public static String SearchingMultiRowsParse(String queryTermMultiSearch) {
-        //System.debug('queryTermMultiSearch: ' + queryTermMultiSearch);
         String query = '';
         Map<String, rowSearchData> searchTermList = (Map<String, rowSearchData>) JSON.deserialize(queryTermMultiSearch, Map<String, rowSearchData>.class);
-        System.debug('searchTermList Size: ' + searchTermList.size());
-        System.debug('searchTermList Values: ' + searchTermList.values());
+        //System.debug('searchTermList Size: ' + searchTermList.size());
+        //System.debug('searchTermList Values: ' + searchTermList.values());
         for(rowSearchData SRD : searchTermList.values()){
             String operator;
             String keyWords;
             if(SRD.elementSROperator == 'equal'){
                 operator = ' = ';
-                keyWords = SRD.elementSRInput;
+                keyWords = '\'' + SRD.elementSRInput + '\'';
             }
             if(SRD.elementSROperator == 'contain'){
                 operator = ' LIKE ';
@@ -88,13 +92,13 @@ public class ProductsListController {
         }
 
     }
-
-    public class rowSearchData{
+    //Wrapper class for multi-field searching
+    private class rowSearchData{
         String elementSRField {get; set;}
         String elementSROperator {get; set;}
         String elementSRInput {get; set;}
     }
-
+    //Wrapper class for creating quote line items
     private class quoteLine{
         Id PBEId {get; set;}
         String linkName {get; set;}

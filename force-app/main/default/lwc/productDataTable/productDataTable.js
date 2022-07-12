@@ -59,7 +59,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     { label: 'Internal Notes', value: 'Product2.Internal_Notes__c' },
   ]
   operators = [
-    { label: '   =   ', value: 'equal' },
+    { label: 'Equals', value: 'equal' },
     { label: 'Contains', value: 'contain' }
   ]
   //Multi-Search values
@@ -119,7 +119,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
       this.data = [...this.data, ...result];
       this.error = undefined;
       this.loadMoreStatus = '';
-      if (this.targetDatatable && this.data.length >= this.totalNumberOfRows) {
+      if ((this.targetDatatable && this.data.length >= this.totalNumberOfRows) || (result.length == 0)) {
           //stop Infinite Loading when threshold is reached
           this.targetDatatable.enableInfiniteLoading = false;
           //Display "No more data to load" when threshold is reached
