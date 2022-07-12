@@ -5,175 +5,177 @@
         <span class="slds-form-element__label slds-text-title_bold slds-align_absolute-center">
           Product Search
         </span >
-        <span class="slds-form-element__label slds-text-title_bold slds-align_absolute-center">
-          Quote Id: {recordId}
-        </span>
       </div>
     </div>
     <div>
-      <span class="slds-form-element__label slds-text-title_bold">
-        Total Records: {totalNumberOfRows}
-      </span>
-    </div>
-    <div>
-      <span class="slds-form-element__label slds-text-title_bold">
-        Displayed Records: {data.length}
+      <span class="slds-form-element__label slds-text-title_bold slds-align_absolute-center">
+        Display Records: {data.length}
       </span>
     </div>
     <!--Show selected rows-->
-    <div onkeyup={handleKeyUp}>
+    <div class="slds-box slds-p-around_small slds-m-top_medium slds-m-horizontal_none" onkeyup={handleKeyUp}>
+      <div class="slds-text-title_bold slds-align_absolute-center">
+        <p>Search all product fields based on single input.</p>
+      </div>
       <lightning-input
           name="enter-search"
           label="Search when user hits the 'enter' key"
           type="search"
+          value={queryTerm}
       ></lightning-input>
+      <p if:true={queryTerm}>
+        Searched for {queryTerm}!
+      </p>
     </div>
-    <!--Search row 1-->
-    <div>
-      <lightning-layout horizontal-align="space">
-        <lightning-layout-item padding="around-small" size="4">
-          <div class="header-column">
-              <p class="field-title" title="Fields">Fields</p>
-              <lightning-combobox
-                name="fields"
-                value={SR1Field}
-                placeholder="Select Field"
-                options={options}
-                variant="label-hidden"
-                onchange={handleChange}
-                data-id="SR1-field"></lightning-combobox>
-          </div>
-        </lightning-layout-item>
-        <lightning-layout-item padding="around-small" size="4">
-          <div class="header-column">
-              <p class="field-title" title="Operator">Operator</p>
-              <lightning-combobox
-                name="operator"
-                value={SR1Operator}
-                placeholder="Select Operator"
-                options={operators}
-                variant="label-hidden"
-                onchange={handleChange}
-                data-id="SR1-operator"></lightning-combobox>
-          </div>
-        </lightning-layout-item>
-        <lightning-layout-item padding="around-small" size="4">
-          <div class="header-column" onkeyup={handleKeyUpMultiSearch}>
-              <p class="field-title" title="Inputs">Inputs</p>
-              <lightning-input 
-                type="text"
-                class="fields"
-                variant="label-hidden"
-                label="SR1Input"
-                name="SR1Input"
-                value={SR1Input}
-                data-id="SR1-input"
-                onchange={handleChange}></lightning-input>
-          </div>
-        </lightning-layout-item>
-      </lightning-layout>
+    <div class="slds-box slds-p-around_small slds-m-top_medium slds-m-bottom_medium slds-m-horizontal_none">
+      <div class="slds-text-title_bold slds-align_absolute-center">
+        <p>Search product based on selected fields.</p>
+      </div>
+      <!--Search row 1-->
+      <div>
+        <lightning-layout horizontal-align="space">
+          <lightning-layout-item padding="around-small" size="4">
+            <div class="header-column">
+                <p class="field-title" title="Fields">Fields</p>
+                <lightning-combobox
+                  name="fields"
+                  value={SR1Field}
+                  placeholder="Select Field"
+                  options={options}
+                  variant="label-hidden"
+                  onchange={handleChange}
+                  data-id="SR1-field"></lightning-combobox>
+            </div>
+          </lightning-layout-item>
+          <lightning-layout-item padding="around-small" size="4">
+            <div class="header-column">
+                <p class="field-title" title="Operator">Operator</p>
+                <lightning-combobox
+                  name="operator"
+                  value={SR1Operator}
+                  placeholder="Select Operator"
+                  options={operators}
+                  variant="label-hidden"
+                  onchange={handleChange}
+                  data-id="SR1-operator"></lightning-combobox>
+            </div>
+          </lightning-layout-item>
+          <lightning-layout-item padding="around-small" size="4">
+            <div class="header-column" onkeyup={handleKeyUpMultiSearch}>
+                <p class="field-title" title="Inputs">Inputs</p>
+                <lightning-input 
+                  type="text"
+                  class="fields"
+                  variant="label-hidden"
+                  label="SR1Input"
+                  name="SR1Input"
+                  value={SR1Input}
+                  data-id="SR1-input"
+                  onchange={handleChange}></lightning-input>
+            </div>
+          </lightning-layout-item>
+        </lightning-layout>
+      </div>
+      <div>
+        AND
+      </div>
+      <!--Search row 2-->
+      <div>
+        <lightning-layout horizontal-align="space">
+          <lightning-layout-item padding="around-small" size="4">
+            <div class="header-column">
+                <p class="field-title" title="Fields">Fields</p>
+                <lightning-combobox
+                  name="fields"
+                  value={SR2Field}
+                  placeholder="Select Field"
+                  options={options}
+                  variant="label-hidden"
+                  onchange={handleChange}
+                  data-id="SR2-field"></lightning-combobox>
+            </div>
+          </lightning-layout-item>
+          <lightning-layout-item padding="around-small" size="4">
+            <div class="header-column">
+                <p class="field-title" title="Operator">Operator</p>
+                <lightning-combobox
+                  name="operator"
+                  value={SR2Operator}
+                  placeholder="Select Operator"
+                  options={operators}
+                  variant="label-hidden"
+                  onchange={handleChange}
+                  data-id="SR2-operator"></lightning-combobox>
+            </div>
+          </lightning-layout-item>
+          <lightning-layout-item padding="around-small" size="4">
+            <div class="header-column" onkeyup={handleKeyUpMultiSearch}>
+                <p class="field-title" title="Inputs">Inputs</p>
+                <lightning-input 
+                  type="text"
+                  class="fields"
+                  variant="label-hidden"
+                  label="SR2Input"
+                  name="SR2Input"
+                  value={SR2Input}
+                  data-id="SR2-input"
+                  onchange={handleChange}></lightning-input>
+            </div>
+          </lightning-layout-item>
+        </lightning-layout>
+      </div>
+      <div>
+        AND
+      </div>
+      <!--Search row 3-->
+      <div>
+        <lightning-layout horizontal-align="space">
+          <lightning-layout-item padding="around-small" size="4">
+            <div class="header-column">
+                <p class="field-title" title="Fields">Fields</p>
+                <lightning-combobox
+                  name="fields"
+                  value={SR3Field}
+                  placeholder="Select Field"
+                  options={options}
+                  variant="label-hidden"
+                  onchange={handleChange}
+                  data-id="SR3-field"></lightning-combobox>
+            </div>
+          </lightning-layout-item>
+          <lightning-layout-item padding="around-small" size="4">
+            <div class="header-column">
+                <p class="field-title" title="Operator">Operator</p>
+                <lightning-combobox
+                  name="operator"
+                  value={SR3Operator}
+                  placeholder="Select Operator"
+                  options={operators}
+                  variant="label-hidden"
+                  onchange={handleChange}
+                  data-id="SR3-operator"></lightning-combobox>
+            </div>
+          </lightning-layout-item>
+          <lightning-layout-item padding="around-small" size="4">
+            <div class="header-column" onkeyup={handleKeyUpMultiSearch}>
+                <p class="field-title" title="Inputs">Inputs</p>
+                <lightning-input 
+                  type="text"
+                  class="fields"
+                  variant="label-hidden"
+                  label="SR3Input"
+                  name="SR3Input"
+                  value={SR3Input}
+                  data-id="SR3-input"
+                  onchange={handleChange}></lightning-input>
+            </div>
+          </lightning-layout-item>
+        </lightning-layout>
+      </div>
     </div>
-    <div>
-      AND
-    </div>
-    <!--Search row 2-->
-    <div>
-      <lightning-layout horizontal-align="space">
-        <lightning-layout-item padding="around-small" size="4">
-          <div class="header-column">
-              <p class="field-title" title="Fields">Fields</p>
-              <lightning-combobox
-                name="fields"
-                value={SR2Field}
-                placeholder="Select Field"
-                options={options}
-                variant="label-hidden"
-                onchange={handleChange}
-                data-id="SR2-field"></lightning-combobox>
-          </div>
-        </lightning-layout-item>
-        <lightning-layout-item padding="around-small" size="4">
-          <div class="header-column">
-              <p class="field-title" title="Operator">Operator</p>
-              <lightning-combobox
-                name="operator"
-                value={SR2Operator}
-                placeholder="Select Operator"
-                options={operators}
-                variant="label-hidden"
-                onchange={handleChange}
-                data-id="SR2-operator"></lightning-combobox>
-          </div>
-        </lightning-layout-item>
-        <lightning-layout-item padding="around-small" size="4">
-          <div class="header-column" onkeyup={handleKeyUpMultiSearch}>
-              <p class="field-title" title="Inputs">Inputs</p>
-              <lightning-input 
-                type="text"
-                class="fields"
-                variant="label-hidden"
-                label="SR2Input"
-                name="SR2Input"
-                value={SR2Input}
-                data-id="SR2-input"
-                onchange={handleChange}></lightning-input>
-          </div>
-        </lightning-layout-item>
-      </lightning-layout>
-    </div>
-    <div>
-      AND
-    </div>
-    <!--Search row 3-->
-    <div>
-      <lightning-layout horizontal-align="space">
-        <lightning-layout-item padding="around-small" size="4">
-          <div class="header-column">
-              <p class="field-title" title="Fields">Fields</p>
-              <lightning-combobox
-                name="fields"
-                value={SR3Field}
-                placeholder="Select Field"
-                options={options}
-                variant="label-hidden"
-                onchange={handleChange}
-                data-id="SR3-field"></lightning-combobox>
-          </div>
-        </lightning-layout-item>
-        <lightning-layout-item padding="around-small" size="4">
-          <div class="header-column">
-              <p class="field-title" title="Operator">Operator</p>
-              <lightning-combobox
-                name="operator"
-                value={SR3Operator}
-                placeholder="Select Operator"
-                options={operators}
-                variant="label-hidden"
-                onchange={handleChange}
-                data-id="SR3-operator"></lightning-combobox>
-          </div>
-        </lightning-layout-item>
-        <lightning-layout-item padding="around-small" size="4">
-          <div class="header-column" onkeyup={handleKeyUpMultiSearch}>
-              <p class="field-title" title="Inputs">Inputs</p>
-              <lightning-input 
-                type="text"
-                class="fields"
-                variant="label-hidden"
-                label="SR3Input"
-                name="SR3Input"
-                value={SR3Input}
-                data-id="SR3-input"
-                onchange={handleChange}></lightning-input>
-          </div>
-        </lightning-layout-item>
-      </lightning-layout>
-    </div>
-    <p if:true={queryTerm}>
-      Searched for {queryTerm}!
-    </p>
-    <div>
+    <div class="slds-p-around_small slds-m-bottom_medium slds-m-horizontal_none">
       <lightning-button onclick={showSelected} label="Show Selected Rows"></lightning-button>
+      <lightning-button onclick={refreshCmp} label="Reset"></lightning-button>
     </div>
     <!--product display table-->
     <div style="height: 350px;" if:true={boolVisible}>
@@ -199,7 +201,9 @@
         onrowselection={selectedRowHandler}>
       </lightning-datatable>
     </div>
-    <lightning-button onclick={toEditRowData} label="Next"></lightning-button>
+    <div class="slds-p-around_small slds-m-top_small slds-m-horizontal_none">
+      <lightning-button onclick={toEditRowData} label="Next"></lightning-button>
+    </div>
   </lightning-card>
   <!--edit selected products-->
   <lightning-card if:true={editRowDataView}>
@@ -247,7 +251,7 @@
         </tbody>
       </table>
     </div>
-    <div>
+    <div class="slds-p-around_small slds-m-top_small slds-m-horizontal_none">
       <lightning-button onclick={toViewRowData} label="Back"></lightning-button>
       <lightning-button onclick={saveQuoteLines} label="Save"></lightning-button>
     </div>

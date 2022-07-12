@@ -201,17 +201,39 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
       this.queryTermMultiSearch['elementSR1'] = SR1Obj
     }
 
+    if(!elementSR1Input.value){
+      console.log("remove elementSR1")
+      if ('elementSR1' in this.queryTermMultiSearch){
+        console.log("removed elementSR1")
+        delete this.queryTermMultiSearch['elementSR1'];
+      }
+    }
+
     if(elementSR2Field.value && elementSR2Operator.value  && elementSR2Input.value){
       let SR2Obj = {elementSRField: elementSR2Field.value, elementSROperator: elementSR2Operator.value, elementSRInput: elementSR2Input.value};
       //this.queryTermMultiSearch.set('elementSR2', SR2Obj);
       this.queryTermMultiSearch['elementSR2'] = SR2Obj
     }
 
+    if(!elementSR2Input.value){
+      console.log("remove elementSR2")
+      if ('elementSR2' in this.queryTermMultiSearch){
+        delete this.queryTermMultiSearch['elementSR2'];
+      }
+    }
+
     if(elementSR3Field.value && elementSR3Operator.value  && elementSR3Input.value){
       let SR3Obj = {elementSRField: elementSR3Field.value, elementSROperator: elementSR3Operator.value, elementSRInput: elementSR3Input.value};
       //this.queryTermMultiSearch.set('elementSR3', SR3Obj);
       this.queryTermMultiSearch['elementSR3'] = SR3Obj
-    }    
+    }
+
+    if(!elementSR3Input.value){
+      console.log("remove elementSR3")
+      if ('elementSR3' in this.queryTermMultiSearch){
+        delete this.queryTermMultiSearch['elementSR3'];
+      }
+    }
     
     console.log("queryTermMultiSearch: " + JSON.stringify(this.queryTermMultiSearch));
 
@@ -221,10 +243,10 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     const isEnterKey = event.keyCode === 13;
     if (isEnterKey) {
       console.log("Muti-Search Enter KeyUp!")
-      this.searchMethod = "SearchingMultiRows";
-      this.data = [];
-      this.offSetCount = 0;
-      if(this.queryTermMultiSearch){
+      if(this.queryTermMultiSearch && Object.keys(this.queryTermMultiSearch).length){
+        this.searchMethod = "SearchingMultiRows";
+        this.data = [];
+        this.offSetCount = 0;
         this.getRecords();
       };
     }
@@ -363,6 +385,29 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
             actionName: 'view'
         }
     });
+  }
+
+  refreshCmp(event) {
+    this.loadMoreStatus = 'Loading';
+    this.data = [];
+    this.offSetCount = 0;
+    this.queryTerm = '';
+    //SR1
+    this.SR1Field = '';
+    this.SR1Operator = '';
+    this.SR1Input = '';
+    //SR2
+    this.SR2Field = '';
+    this.SR2Operator = '';
+    this.SR2Input = '';
+    //SR3
+    this.SR3Field = '';
+    this.SR3Operator = '';
+    this.SR3Input = '';
+
+    this.queryTermMultiSearch = {};
+
+    this.getRecords();
   }
   
 }

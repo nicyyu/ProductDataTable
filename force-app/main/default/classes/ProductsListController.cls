@@ -23,7 +23,6 @@ public class ProductsListController {
                 SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive
                 FROM PriceBookEntry 
                 WHERE CurrencyIsoCode = :accountCurrency AND PriceBookName__c = :accountPB AND Product2Id IN :productSearch];
-                //LIMIT 20 OFFSET :offSetCount];
         }
         //Multi-fields Searching
         if(searchMethod == 'SearchingMultiRows') {
