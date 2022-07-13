@@ -1,5 +1,7 @@
 import { LightningElement, api, wire, track } from 'lwc';
 
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+
 import { NavigationMixin } from 'lightning/navigation';
 
 import getRecords from '@salesforce/apex/ProductsListController.getRecords';
@@ -13,11 +15,12 @@ const columns = [
       typeAttributes: {
           label: { fieldName: 'Name' },
           target: '_blank'
-      } 
+      },
+      fixedWidth: 150
   },
-  { label: 'Id', fieldName: 'Id', type: 'text'},
-  { label: 'Unit Price', fieldName: 'UnitPrice', type: 'currency'},
-  { label: 'SAP Code', fieldName: 'Product_SAP_Id__c', type: 'text'}
+  { label: 'SAP Code', fieldName: 'Product_SAP_Id__c', type: 'text', fixedWidth: 200},
+  { label: 'Unit Price', fieldName: 'UnitPrice', type: 'currency', fixedWidth: 150},
+  { label: 'Description', fieldName: 'Description', type: 'text', fixedWidth: 500}
 ];
 
 export default class ProductDataTable extends NavigationMixin(LightningElement) {
@@ -28,7 +31,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   columns = columns;
   data = [];
   error;
-  totalNumberOfRows = 100; // stop the infinite load after this threshold count
+  totalNumberOfRows = 1000; // stop the infinite load after this threshold count
   // offSetCount to send to apex to get the subsequent result. 0 in offSetCount signifies for the initial load of records on component load.
   offSetCount = 0;
   loadMoreStatus;
@@ -78,6 +81,8 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   //Mutilpe Rows Search
   queryTermMultiSearch = {};
 
+  isLoaded = false;
+
 
   connectedCallback() {
     //Get account currency and price level
@@ -115,6 +120,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
       result = JSON.parse(JSON.stringify(result));
       result.forEach(record => {
           record.linkName = '/' + record.Id;
+          record.Description = record.Product2.Description;
       });
       this.data = [...this.data, ...result];
       this.error = undefined;
@@ -353,6 +359,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   saveQuoteLines(event) {
     console.log("saveQuoteLines");
     let quoteLinesList = [];
+    this.isLoaded = true;
 
     this.PBEListFinal.forEach(peb => {
       if(peb.Comment == '') {
@@ -368,10 +375,13 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
       quoteLines : JSON.stringify(quoteLinesList)
     })
     .then(result => {
+      this.isLoaded = false;
+      this.showToast();
       // Returned result if from sobject and can't be extended so objectifying the result to make it extensible
       result = JSON.parse(JSON.stringify(result));
-      console.log("results: " + result);
-      this.navigateToRecordPage();
+      setTimeout(() => {
+        this.navigateToRecordPage();
+      }, 2000);
     })
   }
 
@@ -388,7 +398,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   }
 
   refreshCmp(event) {
-    this.loadMoreStatus = 'Loading';
+    this.searchMethod = 'Loading';
     this.data = [];
     this.offSetCount = 0;
     this.queryTerm = '';
@@ -408,6 +418,15 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     this.queryTermMultiSearch = {};
 
     this.getRecords();
+  }
+
+  showToast() {
+    const event = new ShowToastEvent({
+        title: 'Quote Line Items Created!',
+        message:
+            'Quote Line Items Created!',
+    });
+    this.dispatchEvent(event);
   }
   
 }

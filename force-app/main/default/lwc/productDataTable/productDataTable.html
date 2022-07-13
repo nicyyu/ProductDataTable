@@ -11,6 +11,12 @@
       <span class="slds-form-element__label slds-text-title_bold slds-align_absolute-center">
         Display Records: {data.length}
       </span>
+      <span class="slds-form-element__label slds-text-title_bold slds-align_absolute-center">
+        Customer Price Book: {accountPB}
+      </span>
+      <span class="slds-form-element__label slds-text-title_bold slds-align_absolute-center">
+        Customer Currency: {accountCurrency}
+      </span>
     </div>
     <!--Show selected rows-->
     <div class="slds-box slds-p-around_small slds-m-top_medium slds-m-horizontal_none" onkeyup={handleKeyUp}>
@@ -196,7 +202,8 @@
       <lightning-datatable 
         key-field="Id" 
         data={selectedData} 
-        columns={columns}  
+        columns={columns}
+        column-widths-mode="auto"
         selected-rows={preselectedRows}
         onrowselection={selectedRowHandler}>
       </lightning-datatable>
@@ -250,6 +257,10 @@
             </template>
         </tbody>
       </table>
+    </div>
+    <div if:true={isLoaded} class="slds-is-relative">
+      <lightning-spinner alternative-text="Loading...">
+      </lightning-spinner>
     </div>
     <div class="slds-p-around_small slds-m-top_small slds-m-horizontal_none">
       <lightning-button onclick={toViewRowData} label="Back"></lightning-button>

@@ -10,24 +10,24 @@ public class ProductsListController {
         List<PriceBookEntry> resultPBE = new List<PriceBookEntry>();
         //Default loading Price Book Entries
         if(searchMethod == 'Loading') {
-            resultPBE = [SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive
+            resultPBE = [SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive, Product2.Description
                     FROM PriceBookEntry 
-                    WHERE CurrencyIsoCode =: accountCurrency AND PriceBookName__c =: accountPB
+                    WHERE CurrencyIsoCode =: accountCurrency AND PriceBookName__c =: accountPB AND IsActive = true
                     LIMIT 20 OFFSET :offSetCount];
         }
         //Single text searching
         if(searchMethod == 'Searching') {
-            List<Product2> productSearch = ((List<Product2>)[FIND :queryTerm IN ALL FIELDS RETURNING Product2(Id LIMIT 20 OFFSET :offSetCount)][0]);
+            List<Product2> productSearch = ((List<Product2>)[FIND :queryTerm IN ALL FIELDS RETURNING Product2(Id WHERE IsActive = true LIMIT 20 OFFSET :offSetCount)][0]);
             System.debug('productSearch: ' + productSearch);
             resultPBE = [
-                SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive
+                SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive, Product2.Description
                 FROM PriceBookEntry 
-                WHERE CurrencyIsoCode = :accountCurrency AND PriceBookName__c = :accountPB AND Product2Id IN :productSearch];
+                WHERE CurrencyIsoCode = :accountCurrency AND PriceBookName__c = :accountPB AND IsActive = true AND Product2Id IN :productSearch];
         }
         //Multi-fields Searching
         if(searchMethod == 'SearchingMultiRows') {
             String returnStr = SearchingMultiRowsParse(queryTermMultiSearch);
-            String SOQLStr = 'SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive FROM PriceBookEntry WHERE CurrencyIsoCode = :accountCurrency' + ' AND ' + 'PriceBookName__c = :accountPB';
+            String SOQLStr = 'SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive, Product2.Description FROM PriceBookEntry WHERE CurrencyIsoCode = :accountCurrency' + ' AND ' + 'PriceBookName__c = :accountPB' + ' AND IsActive = true';
             SOQLStr = SOQLStr + returnStr + 'LIMIT 20 OFFSET :offSetCount';
             resultPBE = Database.query(SOQLStr);
         }
@@ -82,12 +82,12 @@ public class ProductsListController {
         if(QLIList.size() > 0) {
             try {
                 insert QLIList;
-                return 'Inserted all QLIList';
+                return 'Successfully Inserted QLI';
             } catch(DMLException e) {
                 throw new DMLException('Unable to Perform the DML Operation on QLIList : ' + e.getMessage());
             }
         } else {
-            return 'QLIList is empty';
+            return 'Nothing Inserted';
         }
 
     }
