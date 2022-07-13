@@ -118,21 +118,27 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     .then(result => {
       // Returned result if from sobject and can't be extended so objectifying the result to make it extensible
       result = JSON.parse(JSON.stringify(result));
-      result.forEach(record => {
+      if(result.length > 0){
+        result.forEach(record => {
           record.linkName = '/' + record.Id;
           record.Description = record.Product2.Description;
-      });
-      this.data = [...this.data, ...result];
-      this.error = undefined;
-      this.loadMoreStatus = '';
-      if ((this.targetDatatable && this.data.length >= this.totalNumberOfRows) || (result.length == 0)) {
+        });
+        this.data = [...this.data, ...result];
+        this.error = undefined;
+        this.loadMoreStatus = '';
+        if ((this.targetDatatable && this.data.length >= this.totalNumberOfRows) || (result.length == 0)) {
           //stop Infinite Loading when threshold is reached
           this.targetDatatable.enableInfiniteLoading = false;
           //Display "No more data to load" when threshold is reached
           this.loadMoreStatus = 'No more data to load';
+        }
+        //Disable a spinner to signal that data has been loaded
+        if (this.targetDatatable) this.targetDatatable.isLoading = false;
+      } else {
+        //No results, refresh the component
+        this.showToastNoRecordFound();
+        this.refreshCmp();
       }
-      //Disable a spinner to signal that data has been loaded
-      if (this.targetDatatable) this.targetDatatable.isLoading = false;
     })
     .catch(error => {
       this.error = error;
@@ -425,6 +431,15 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
         title: 'Quote Line Items Created!',
         message:
             'Quote Line Items Created!',
+    });
+    this.dispatchEvent(event);
+  }
+
+  showToastNoRecordFound() {
+    const event = new ShowToastEvent({
+        title: 'Did not find any record!',
+        message:
+            'Did not find any record!',
     });
     this.dispatchEvent(event);
   }
