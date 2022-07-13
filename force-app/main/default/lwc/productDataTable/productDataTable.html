@@ -28,6 +28,7 @@
           label="Search when user hits the 'enter' key"
           type="search"
           value={queryTerm}
+          data-id="queryTerm-field"
       ></lightning-input>
       <p if:true={queryTerm}>
         Searched for {queryTerm}!

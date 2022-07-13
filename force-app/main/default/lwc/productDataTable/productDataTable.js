@@ -51,6 +51,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
 
   //Multi-Search options and operator
   options = [
+    { label: 'None', value: 'None' },
     { label: 'Product Name', value: 'Name' },
     { label: 'Product Family', value: 'Product2.Family' },
     { label: 'Sales Order Material', value: 'Product2.Sales_Order_Material__c' },
@@ -62,12 +63,13 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     { label: 'Internal Notes', value: 'Product2.Internal_Notes__c' },
   ]
   operators = [
+    { label: 'None', value: 'None' },
     { label: 'Equals', value: 'equal' },
     { label: 'Contains', value: 'contain' }
   ]
   //Multi-Search values
   //SR1
-  SR1Field;
+  SR1Field = "None";
   SR1Operator;
   SR1Input;
   //SR2
@@ -118,7 +120,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     .then(result => {
       // Returned result if from sobject and can't be extended so objectifying the result to make it extensible
       result = JSON.parse(JSON.stringify(result));
-      if(result.length > 0){
+      if(Object.keys(result).length !== 0){
         result.forEach(record => {
           record.linkName = '/' + record.Id;
           record.Description = record.Product2.Description;
@@ -207,7 +209,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     const elementSR3Input = this.template.querySelector('[data-id="SR3-input"]');
     console.log("elementSR3: " + elementSR3Field.value + " - " + elementSR3Operator.value + " - " + elementSR3Input.value);
 
-    if(elementSR1Field.value && elementSR1Operator.value  && elementSR1Input.value){
+    if(elementSR1Field.value && elementSR1Field.value != 'None' && elementSR1Operator.value  && elementSR1Operator.value != 'None' && elementSR1Input.value){
       let SR1Obj = {elementSRField: elementSR1Field.value, elementSROperator: elementSR1Operator.value, elementSRInput: elementSR1Input.value};
       //this.queryTermMultiSearch.set('elementSR1', SR1Obj);
       this.queryTermMultiSearch['elementSR1'] = SR1Obj
@@ -221,7 +223,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
       }
     }
 
-    if(elementSR2Field.value && elementSR2Operator.value  && elementSR2Input.value){
+    if(elementSR2Field.value && elementSR2Field.value != 'None' && elementSR2Operator.value  && elementSR2Operator.value != 'None' && elementSR2Input.value){
       let SR2Obj = {elementSRField: elementSR2Field.value, elementSROperator: elementSR2Operator.value, elementSRInput: elementSR2Input.value};
       //this.queryTermMultiSearch.set('elementSR2', SR2Obj);
       this.queryTermMultiSearch['elementSR2'] = SR2Obj
@@ -234,7 +236,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
       }
     }
 
-    if(elementSR3Field.value && elementSR3Operator.value  && elementSR3Input.value){
+    if(elementSR3Field.value && elementSR3Field.value != 'None' && elementSR3Operator.value  && elementSR3Operator.value != 'None' && elementSR3Input.value){
       let SR3Obj = {elementSRField: elementSR3Field.value, elementSROperator: elementSR3Operator.value, elementSRInput: elementSR3Input.value};
       //this.queryTermMultiSearch.set('elementSR3', SR3Obj);
       this.queryTermMultiSearch['elementSR3'] = SR3Obj
@@ -404,26 +406,38 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   }
 
   refreshCmp(event) {
+    console.log("refresh component")
     this.searchMethod = 'Loading';
     this.data = [];
     this.offSetCount = 0;
-    this.queryTerm = '';
+    const queryTermFieldSelect = this.template.querySelector('[data-id="queryTerm-field"]');
+    queryTermFieldSelect.value = '';
     //SR1
-    this.SR1Field = '';
-    this.SR1Operator = '';
-    this.SR1Input = '';
+    const SR1FieldSelect = this.template.querySelector('[data-id="SR1-field"]');
+    SR1FieldSelect.value = 'None';
+    const SR1OperatorSelect = this.template.querySelector('[data-id="SR1-operator"]');
+    SR1OperatorSelect.value = 'None';
+    const SR1OinputSelect = this.template.querySelector('[data-id="SR1-input"]');
+    SR1OinputSelect.value = '';
     //SR2
-    this.SR2Field = '';
-    this.SR2Operator = '';
-    this.SR2Input = '';
+    const SR2FieldSelect = this.template.querySelector('[data-id="SR2-field"]');
+    SR2FieldSelect.value = 'None';
+    const SR2OperatorSelect = this.template.querySelector('[data-id="SR2-operator"]');
+    SR2OperatorSelect.value = 'None';
+    const SR2OinputSelect = this.template.querySelector('[data-id="SR2-input"]');
+    SR2OinputSelect.value = '';
     //SR3
-    this.SR3Field = '';
-    this.SR3Operator = '';
-    this.SR3Input = '';
+    const SR3FieldSelect = this.template.querySelector('[data-id="SR3-field"]');
+    SR3FieldSelect.value = 'None';
+    const SR3OperatorSelect = this.template.querySelector('[data-id="SR3-operator"]');
+    SR3OperatorSelect.value = 'None';
+    const SR3OinputSelect = this.template.querySelector('[data-id="SR3-input"]');
+    SR3OinputSelect.value = '';
 
     this.queryTermMultiSearch = {};
 
     this.getRecords();
+
   }
 
   showToast() {
