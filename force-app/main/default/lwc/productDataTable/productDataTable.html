@@ -1,5 +1,6 @@
 <template>
   <lightning-card if:true={viewRowDataView}>
+    
     <div class="slds-var-p-around_small">
       <div>
         <span class="slds-form-element__label slds-text-title_bold slds-align_absolute-center">
@@ -7,6 +8,7 @@
         </span >
       </div>
     </div>
+
     <div>
       <span class="slds-form-element__label slds-text-title_bold slds-align_absolute-center">
         Display Records: {data.length}
@@ -18,6 +20,7 @@
         Customer Currency: {accountCurrency}
       </span>
     </div>
+
     <!--Show selected rows-->
     <div class="slds-box slds-p-around_small slds-m-top_medium slds-m-horizontal_none" onkeyup={handleKeyUp}>
       <div class="slds-text-title_bold slds-align_absolute-center">
@@ -30,10 +33,12 @@
           value={queryTerm}
           data-id="queryTerm-field"
       ></lightning-input>
-      <p if:true={queryTerm}>
+      <p if:true={queryTerm} data-id="queryTerm-show">
         Searched for {queryTerm}!
       </p>
     </div>
+
+    <!--Multi-Search Section-->
     <div class="slds-box slds-p-around_small slds-m-top_medium slds-m-bottom_medium slds-m-horizontal_none">
       <div class="slds-text-title_bold slds-align_absolute-center">
         <p>Search product based on selected fields.</p>
@@ -179,11 +184,114 @@
           </lightning-layout-item>
         </lightning-layout>
       </div>
+      <div>
+        AND
+      </div>
+      <!--Search row 4-->
+      <div>
+        <lightning-layout horizontal-align="space">
+          <lightning-layout-item padding="around-small" size="4">
+            <div class="header-column">
+                <p class="field-title" title="Fields">Fields</p>
+                <lightning-combobox
+                  name="fields"
+                  value={SR4Field}
+                  placeholder="Select Field"
+                  options={options}
+                  variant="label-hidden"
+                  onchange={handleChange}
+                  data-id="SR4-field"></lightning-combobox>
+            </div>
+          </lightning-layout-item>
+          <lightning-layout-item padding="around-small" size="4">
+            <div class="header-column">
+                <p class="field-title" title="Operator">Operator</p>
+                <lightning-combobox
+                  name="operator"
+                  value={SR4Operator}
+                  placeholder="Select Operator"
+                  options={operators}
+                  variant="label-hidden"
+                  onchange={handleChange}
+                  data-id="SR4-operator"></lightning-combobox>
+            </div>
+          </lightning-layout-item>
+          <lightning-layout-item padding="around-small" size="4">
+            <div class="header-column" onkeyup={handleKeyUpMultiSearch}>
+                <p class="field-title" title="Inputs">Inputs</p>
+                <lightning-input 
+                  type="text"
+                  class="fields"
+                  variant="label-hidden"
+                  label="SR4Input"
+                  name="SR4Input"
+                  value={SR4Input}
+                  data-id="SR4-input"
+                  onchange={handleChange}></lightning-input>
+            </div>
+          </lightning-layout-item>
+        </lightning-layout>
+      </div>
+      <div>
+        AND
+      </div>
+      <!--Search row 5-->
+      <div>
+      <lightning-layout horizontal-align="space">
+        <lightning-layout-item padding="around-small" size="4">
+          <div class="header-column">
+              <p class="field-title" title="Fields">Fields</p>
+              <lightning-combobox
+                name="fields"
+                value={SR5Field}
+                placeholder="Select Field"
+                options={options}
+                variant="label-hidden"
+                onchange={handleChange}
+                data-id="SR5-field"></lightning-combobox>
+          </div>
+        </lightning-layout-item>
+        <lightning-layout-item padding="around-small" size="4">
+          <div class="header-column">
+              <p class="field-title" title="Operator">Operator</p>
+              <lightning-combobox
+                name="operator"
+                value={SR5Operator}
+                placeholder="Select Operator"
+                options={operators}
+                variant="label-hidden"
+                onchange={handleChange}
+                data-id="SR5-operator"></lightning-combobox>
+          </div>
+        </lightning-layout-item>
+        <lightning-layout-item padding="around-small" size="4">
+          <div class="header-column" onkeyup={handleKeyUpMultiSearch}>
+              <p class="field-title" title="Inputs">Inputs</p>
+              <lightning-input 
+                type="text"
+                class="fields"
+                variant="label-hidden"
+                label="SR5Input"
+                name="SR5Input"
+                value={SR5Input}
+                data-id="SR5-input"
+                onchange={handleChange}></lightning-input>
+          </div>
+        </lightning-layout-item>
+      </lightning-layout>
+      </div>
+      <div if:true={isLoaded} class="slds-is-relative">
+        <lightning-spinner alternative-text="Loading...">
+        </lightning-spinner>
+      </div>
     </div>
+
+    <!--Show Selected Rows and Reset buttons-->
     <div class="slds-p-around_small slds-m-bottom_medium slds-m-horizontal_none">
       <lightning-button onclick={showSelected} label="Show Selected Rows"></lightning-button>
       <lightning-button onclick={refreshCmp} label="Reset"></lightning-button>
     </div>
+
     <!--product display table-->
     <div style="height: 350px;" if:true={boolVisible}>
       <lightning-datatable 
@@ -198,6 +306,7 @@
       </lightning-datatable>
     </div>
     {loadMoreStatus}
+
     <!--show select products table-->
     <div style="height: 350px;" if:false={boolVisible}>
       <lightning-datatable 
@@ -213,6 +322,7 @@
       <lightning-button onclick={toEditRowData} label="Next"></lightning-button>
     </div>
   </lightning-card>
+
   <!--edit selected products-->
   <lightning-card if:true={editRowDataView}>
     <div class="slds-m-around_medium">

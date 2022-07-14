@@ -37,8 +37,8 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   loadMoreStatus;
   targetDatatable; // capture the loadmore event to fetch data and stop infinite loading
   loadMore = true;
-  searchMethod;
-  queryTerm;
+  searchMethod = "Loading";
+  queryTerm = "";
 
   boolVisible = true;
   preselectedRows = [];
@@ -70,21 +70,27 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   //Multi-Search values
   //SR1
   SR1Field = "None";
-  SR1Operator;
-  SR1Input;
+  SR1Operator = "None";
+  SR1Input = "";
   //SR2
-  SR2Field;
-  SR2Operator;
-  SR2Input;
+  SR2Field = "None";
+  SR2Operator = "None";
+  SR2Input = "";
   //SR3
-  SR3Field;
-  SR3Operator;
-  SR3Input;
+  SR3Field = "None";
+  SR3Operator = "None";
+  SR3Input = "";
+  //SR4
+  SR4Field = "None";
+  SR4Operator = "None";
+  SR4Input = "";
+  //SR5
+  SR5Field = "None";
+  SR5Operator = "None";
+  SR5Input = "";
   //Mutilpe Rows Search
   queryTermMultiSearch = {};
-
   isLoaded = false;
-
 
   connectedCallback() {
     //Get account currency and price level
@@ -109,6 +115,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
 
   getRecords() {
     console.log("getRecords...");
+    this.isLoaded = true;
     getRecords({
       offSetCount : this.offSetCount,
       accountPB : this.accountPB,
@@ -119,6 +126,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     })
     .then(result => {
       // Returned result if from sobject and can't be extended so objectifying the result to make it extensible
+      this.isLoaded = false;
       result = JSON.parse(JSON.stringify(result));
       if(Object.keys(result).length !== 0){
         result.forEach(record => {
@@ -138,6 +146,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
         if (this.targetDatatable) this.targetDatatable.isLoading = false;
       } else {
         //No results, refresh the component
+        this.isLoaded = false;
         this.showToastNoRecordFound();
         this.refreshCmp();
       }
@@ -195,42 +204,47 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
   }
 
   handleChange(event) {
+
     console.log("User is changing Muti-Search!")
+
     const elementSR1Field = this.template.querySelector('[data-id="SR1-field"]');
     const elementSR1Operator = this.template.querySelector('[data-id="SR1-operator"]');
     const elementSR1Input = this.template.querySelector('[data-id="SR1-input"]');
-    console.log("elementSR1: " + elementSR1Field.value + " - " + elementSR1Operator.value + " - " + elementSR1Input.value);
+
     const elementSR2Field = this.template.querySelector('[data-id="SR2-field"]');
     const elementSR2Operator = this.template.querySelector('[data-id="SR2-operator"]');
     const elementSR2Input = this.template.querySelector('[data-id="SR2-input"]');
-    console.log("elementSR2: " + elementSR2Field.value + " - " + elementSR2Operator.value + " - " + elementSR2Input.value);
+
     const elementSR3Field = this.template.querySelector('[data-id="SR3-field"]');
     const elementSR3Operator = this.template.querySelector('[data-id="SR3-operator"]');
     const elementSR3Input = this.template.querySelector('[data-id="SR3-input"]');
-    console.log("elementSR3: " + elementSR3Field.value + " - " + elementSR3Operator.value + " - " + elementSR3Input.value);
+
+    const elementSR4Field = this.template.querySelector('[data-id="SR4-field"]');
+    const elementSR4Operator = this.template.querySelector('[data-id="SR4-operator"]');
+    const elementSR4Input = this.template.querySelector('[data-id="SR4-input"]');
+
+    const elementSR5Field = this.template.querySelector('[data-id="SR5-field"]');
+    const elementSR5Operator = this.template.querySelector('[data-id="SR5-operator"]');
+    const elementSR5Input = this.template.querySelector('[data-id="SR5-input"]');
 
     if(elementSR1Field.value && elementSR1Field.value != 'None' && elementSR1Operator.value  && elementSR1Operator.value != 'None' && elementSR1Input.value){
       let SR1Obj = {elementSRField: elementSR1Field.value, elementSROperator: elementSR1Operator.value, elementSRInput: elementSR1Input.value};
-      //this.queryTermMultiSearch.set('elementSR1', SR1Obj);
       this.queryTermMultiSearch['elementSR1'] = SR1Obj
     }
 
     if(!elementSR1Input.value){
       console.log("remove elementSR1")
       if ('elementSR1' in this.queryTermMultiSearch){
-        console.log("removed elementSR1")
         delete this.queryTermMultiSearch['elementSR1'];
       }
     }
 
     if(elementSR2Field.value && elementSR2Field.value != 'None' && elementSR2Operator.value  && elementSR2Operator.value != 'None' && elementSR2Input.value){
       let SR2Obj = {elementSRField: elementSR2Field.value, elementSROperator: elementSR2Operator.value, elementSRInput: elementSR2Input.value};
-      //this.queryTermMultiSearch.set('elementSR2', SR2Obj);
       this.queryTermMultiSearch['elementSR2'] = SR2Obj
     }
 
     if(!elementSR2Input.value){
-      console.log("remove elementSR2")
       if ('elementSR2' in this.queryTermMultiSearch){
         delete this.queryTermMultiSearch['elementSR2'];
       }
@@ -238,14 +252,34 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
 
     if(elementSR3Field.value && elementSR3Field.value != 'None' && elementSR3Operator.value  && elementSR3Operator.value != 'None' && elementSR3Input.value){
       let SR3Obj = {elementSRField: elementSR3Field.value, elementSROperator: elementSR3Operator.value, elementSRInput: elementSR3Input.value};
-      //this.queryTermMultiSearch.set('elementSR3', SR3Obj);
       this.queryTermMultiSearch['elementSR3'] = SR3Obj
     }
 
     if(!elementSR3Input.value){
-      console.log("remove elementSR3")
       if ('elementSR3' in this.queryTermMultiSearch){
         delete this.queryTermMultiSearch['elementSR3'];
+      }
+    }
+
+    if(elementSR4Field.value && elementSR4Field.value != 'None' && elementSR4Operator.value  && elementSR4Operator.value != 'None' && elementSR4Input.value){
+      let SR4Obj = {elementSRField: elementSR4Field.value, elementSROperator: elementSR4Operator.value, elementSRInput: elementSR4Input.value};
+      this.queryTermMultiSearch['elementSR4'] = SR4Obj
+    }
+
+    if(!elementSR4Input.value){
+      if ('elementSR4' in this.queryTermMultiSearch){
+        delete this.queryTermMultiSearch['elementSR4'];
+      }
+    }
+
+    if(elementSR5Field.value && elementSR5Field.value != 'None' && elementSR5Operator.value  && elementSR5Operator.value != 'None' && elementSR5Input.value){
+      let SR5Obj = {elementSRField: elementSR5Field.value, elementSROperator: elementSR5Operator.value, elementSRInput: elementSR5Input.value};
+      this.queryTermMultiSearch['elementSR5'] = SR5Obj
+    }
+
+    if(!elementSR5Input.value){
+      if ('elementSR5' in this.queryTermMultiSearch){
+        delete this.queryTermMultiSearch['elementSR5'];
       }
     }
     
@@ -433,6 +467,20 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     SR3OperatorSelect.value = 'None';
     const SR3OinputSelect = this.template.querySelector('[data-id="SR3-input"]');
     SR3OinputSelect.value = '';
+    //SR4
+    const SR4FieldSelect = this.template.querySelector('[data-id="SR4-field"]');
+    SR4FieldSelect.value = 'None';
+    const SR4OperatorSelect = this.template.querySelector('[data-id="SR4-operator"]');
+    SR4OperatorSelect.value = 'None';
+    const SR4OinputSelect = this.template.querySelector('[data-id="SR4-input"]');
+    SR4OinputSelect.value = '';
+    //SR5
+    const SR5FieldSelect = this.template.querySelector('[data-id="SR5-field"]');
+    SR5FieldSelect.value = 'None';
+    const SR5OperatorSelect = this.template.querySelector('[data-id="SR5-operator"]');
+    SR5OperatorSelect.value = 'None';
+    const SR5OinputSelect = this.template.querySelector('[data-id="SR5-input"]');
+    SR5OinputSelect.value = '';
 
     this.queryTermMultiSearch = {};
 
