@@ -129,6 +129,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
       this.isLoaded = false;
       result = JSON.parse(JSON.stringify(result));
       if(Object.keys(result).length !== 0){
+        console.log("Has results!");
         result.forEach(record => {
           record.linkName = '/' + record.Id;
           record.Description = record.Product2.Description;
@@ -146,9 +147,19 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
         if (this.targetDatatable) this.targetDatatable.isLoading = false;
       } else {
         //No results, refresh the component
+        console.log("No results!");
         this.isLoaded = false;
-        this.showToastNoRecordFound();
-        this.refreshCmp();
+        //Show Toast
+        this.showToastFinishedSearch();
+        //Stop Infinite Loading when threshold is reached
+        if (this.targetDatatable) {
+          console.log("targetDatatable to false!");
+          this.targetDatatable.isLoading = false;
+          this.targetDatatable.enableInfiniteLoading = false;
+        }
+        //Display "No more data to load" when threshold is reached
+        this.loadMoreStatus = 'No more data to load';
+        //this.refreshCmp();
       }
     })
     .catch(error => {
@@ -292,7 +303,11 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     if (isEnterKey) {
       console.log("Muti-Search Enter KeyUp!")
       if(this.queryTermMultiSearch && Object.keys(this.queryTermMultiSearch).length){
-        this.searchMethod = "SearchingMultiRows";
+        this.loadMoreStatus = '';
+        if(this.targetDatatable != null){
+          this.targetDatatable.enableInfiniteLoading = true;
+        }
+        this.searchMethod = "Searching";
         this.data = [];
         this.offSetCount = 0;
         this.getRecords();
@@ -493,6 +508,15 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
         title: 'Quote Line Items Created!',
         message:
             'Quote Line Items Created!',
+    });
+    this.dispatchEvent(event);
+  }
+
+  showToastFinishedSearch() {
+    const event = new ShowToastEvent({
+        title: 'Record search finished!',
+        message:
+            'Record search finished!',
     });
     this.dispatchEvent(event);
   }

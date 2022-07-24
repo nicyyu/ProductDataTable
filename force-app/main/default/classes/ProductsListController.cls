@@ -17,12 +17,33 @@ public class ProductsListController {
         }
         //Single text searching
         if(searchMethod == 'Searching') {
-            List<Product2> productSearch = ((List<Product2>)[FIND :queryTerm IN ALL FIELDS RETURNING Product2(Id WHERE IsActive = true LIMIT 20 OFFSET :offSetCount)][0]);
-            System.debug('productSearch: ' + productSearch);
+
+            System.debug('queryTerm: ' + queryTerm);
+
+            System.debug('queryTermMultiSearch: ' + queryTermMultiSearch);
+
+            Set<Id> prdIdSet = new Set<Id>();
+
+            String returnStr = SearchingMultiRowsParse(queryTermMultiSearch);
+
+            if(String.isBlank(queryTerm)){
+                System.debug('queryTerm empty');
+                queryTerm = '*';
+            }
+
+            String queryProduct = 'FIND \'' + queryTerm + '\'IN ALL FIELDS RETURNING Product2(Id WHERE IsActive = true ' + returnStr + 'LIMIT 20 OFFSET :offSetCount)';
+
+            List<List<SObject>> productSearch = search.query(queryProduct);
+
+            for(Sobject prd : productSearch[0]){
+                prdIdSet.add(prd.Id);
+            }
+            
             resultPBE = [
                 SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive, Product2.Description
                 FROM PriceBookEntry 
-                WHERE CurrencyIsoCode = :accountCurrency AND PriceBookName__c = :accountPB AND IsActive = true AND Product2Id IN :productSearch];
+                WHERE CurrencyIsoCode = :accountCurrency AND PriceBookName__c = :accountPB AND IsActive = true AND Product2Id IN :prdIdSet];
+
         }
         //Multi-fields Searching
         if(searchMethod == 'SearchingMultiRows') {

@@ -1,6 +1,6 @@
 <template>
   <lightning-card if:true={viewRowDataView}>
-    
+
     <div class="slds-var-p-around_small">
       <div>
         <span class="slds-form-element__label slds-text-title_bold slds-align_absolute-center">
@@ -14,17 +14,18 @@
         Display Records: {data.length}
       </span>
       <span class="slds-form-element__label slds-text-title_bold slds-align_absolute-center">
-        Customer Price Book: {accountPB}
+        Customer Price Book: {accountPB} - Customer Currency: {accountCurrency}
       </span>
-      <span class="slds-form-element__label slds-text-title_bold slds-align_absolute-center">
-        Customer Currency: {accountCurrency}
+      <span class="slds-text-body-smalls slds-align_absolute-center">
+        We have 2 sections below for product searching. For now, they cannot work together.
+        So, when you search product, you can only use one of them.
       </span>
     </div>
 
     <!--Show selected rows-->
     <div class="slds-box slds-p-around_small slds-m-top_medium slds-m-horizontal_none" onkeyup={handleKeyUp}>
       <div class="slds-text-title_bold slds-align_absolute-center">
-        <p>Search all product fields based on single input.</p>
+        <p>Section 1: Search all product fields based on single input.</p>
       </div>
       <lightning-input
           name="enter-search"
@@ -41,7 +42,7 @@
     <!--Multi-Search Section-->
     <div class="slds-box slds-p-around_small slds-m-top_medium slds-m-bottom_medium slds-m-horizontal_none">
       <div class="slds-text-title_bold slds-align_absolute-center">
-        <p>Search product based on selected fields.</p>
+        <p>Section 2: Search product based on selected fields.</p>
       </div>
       <!--Search row 1-->
       <div>
@@ -305,8 +306,9 @@
         load-more-offset="20">
       </lightning-datatable>
     </div>
-    {loadMoreStatus}
-
+    <div class="slds-text-body-smalls slds-align_absolute-center">
+      {loadMoreStatus}
+    </div>
     <!--show select products table-->
     <div style="height: 350px;" if:false={boolVisible}>
       <lightning-datatable 
