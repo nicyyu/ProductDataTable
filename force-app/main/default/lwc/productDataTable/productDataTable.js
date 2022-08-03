@@ -11,16 +11,16 @@ import getAccountRecord from '@salesforce/apex/ProductsListController.getAccount
 import createQuoteLines from '@salesforce/apex/ProductsListController.createQuoteLines';
 
 const columns = [
-  { label: 'Product Name', fieldName: 'linkName', type: 'url',
+  { label: 'Product Name', fieldName: 'linkName', type: 'url', sortable: true,
       typeAttributes: {
           label: { fieldName: 'Name' },
           target: '_blank'
       },
       fixedWidth: 150
   },
-  { label: 'SAP Code', fieldName: 'Product_SAP_Id__c', type: 'text', fixedWidth: 200},
-  { label: 'Unit Price', fieldName: 'UnitPrice', type: 'currency', fixedWidth: 150},
-  { label: 'Description', fieldName: 'Description', type: 'text', fixedWidth: 500}
+  { label: 'SAP Code', fieldName: 'Product_SAP_Id__c', type: 'text', fixedWidth: 200, sortable: true},
+  { label: 'Unit Price', fieldName: 'UnitPrice', type: 'currency', fixedWidth: 150, sortable: true},
+  { label: 'Description', fieldName: 'Description', type: 'text', fixedWidth: 500,sortable: true}
 ];
 
 export default class ProductDataTable extends NavigationMixin(LightningElement) {
@@ -51,46 +51,151 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
 
   //Multi-Search options and operator
   options = [
-    { label: 'None', value: 'None' },
-    { label: 'Product Name', value: 'Name' },
-    { label: 'Product Family', value: 'Product2.Family' },
-    { label: 'Sales Order Material', value: 'Product2.Sales_Order_Material__c' },
-    { label: 'Item Category', value: 'Product2.Item_Category__c' },
-    { label: 'Item Division', value: 'Product2.Item_Division__c' },
-    { label: 'Product Description', value: 'Product2.Description' },
-    { label: 'Product Description - French', value: 'Product2.Product_Description_French__c' },
-    { label: 'Extended Description', value: 'Product2.Extended_Description__c' },
-    { label: 'Internal Notes', value: 'Product2.Internal_Notes__c' },
+    { label: 'None', value: 'None'},
+    { label: 'Product Name', value: 'Name'},
+    { label: 'Product Code', value: 'ProductCode'},
+    { label: 'Product Family', value: 'Product2.Family'},
+    { label: 'Sales Order Material', value: 'Product2.Sales_Order_Material__c'},
+    { label: 'Item Category', value: 'Product2.Item_Category__c'},
+    { label: 'Item Division', value: 'Product2.Item_Division__c'},
+    { label: 'Product Description', value: 'Product2.Description'},
+    { label: 'Product Description - French', value: 'Product2.Product_Description_French__c'},
+    { label: 'Extended Description', value: 'Product2.Extended_Description__c'},
+    { label: 'Internal Notes', value: 'Product2.Internal_Notes__c'},
+    { label: 'Product Family Group', value: 'Product2.ProductFamilyGroup__c'},
+    { label: 'Material Group', value: 'Product2.Material_Group__c'},
+    { label: 'Serialized', value: 'Product2.Serialized__c'},
+    { label: 'Warranty Renewal SKU', value: 'Product2.Warranty_Renewal_SKU__c'},
+    { label: 'Active', value: 'Product2.IsActive'},
+    { label: 'Rental Item', value: 'Product2.Rental_Item__c'},
+    { label: 'Product Grouping', value: 'Product2.Product_Grouping__c'},
+    { label: 'Override Material', value: 'Product2.Override_Material__c'},
+    { label: 'Product Currency', value: 'Product2.CurrencyIsoCode'},
+    { label: 'Cost (CAD)', value: 'Product2.Cost__c'},
+    { label: 'Cost (USD)', value: 'Product2.Cost_USD__c'},
+    { label: 'List Price (CAD)', value: 'Product2.List_Price__c'},
+    { label: 'List Price (USD)', value: 'Product2.List_Price_USD__c'},
+    { label: 'List Price CAD Active', value: 'Product2.List_Price_CAD_Active__c'},
+    { label: 'List Price USD Active', value: 'Product2.List_Price_USD_Active__c'},
+    { label: 'SAP Cross Reference', value: 'Product2.SAP_Cross_Reference__c'},
+    { label: 'MFR Part Number', value: 'Product2.MFR_Part_Number__c'},
+    { label: 'Order Conversion Included', value: 'Product2.Order_Conversion_Included__c'},
+    { label: 'Pricing Condition', value: 'Product2.Pricing_Condition__c'},
+    { label: 'SAP Material Number', value: 'Product2.SAP_Id__c'},
+    { label: 'SAP General Item Group', value: 'Product2.SAP_General_Item_Group__c'},
+    { label: 'SAP Unit Of Measure', value: 'Product2.SAP_Unit_Of_Measure_Standard__c'},
+    { label: 'SAP Unit Of Measure (ISO)', value: 'Product2.SAP_Unit_Of_Measure__c'},
   ]
   operators = [
     { label: 'None', value: 'None' },
-    { label: 'Equals', value: 'equal' },
-    { label: 'Contains', value: 'contain' }
+    { label: 'Equals', value: 'Equals' },
+    { label: 'Not Equals', value: 'NotEquals' },
+    { label: 'Starts With', value: 'StartsWith' },
+    { label: 'Contains', value: 'Contains' },
+    { label: 'Does Not Contain', value: 'DoesNotContain' },
+    { label: 'Less Than', value: 'LessThan' },
+    { label: 'Greater Than', value: 'GreaterThan' },
+    { label: 'Less Or Equal', value: 'LessOrEqual' },
+    { label: 'Greater Or Equal', value: 'GreaterOrEqual' },
+    { label: 'Includes', value: 'Includes' },
+    { label: 'Excludes', value: 'Excludes' },
+    { label: 'Within', value: 'Within' }
+  ]
+  operatorsText = [
+    { label: 'None', value: 'None' },
+    { label: 'Equals', value: 'Equals' },
+    { label: 'Not Equals', value: 'NotEquals' },
+    { label: 'Starts With', value: 'StartsWith' },
+    { label: 'Contains', value: 'Contains' },
+    { label: 'Does Not Contain', value: 'DoesNotContain' },
+    { label: 'Less Than', value: 'LessThan' },
+    { label: 'Greater Than', value: 'GreaterThan' },
+    { label: 'Less Or Equal', value: 'LessOrEqual' },
+    { label: 'Greater Or Equal', value: 'GreaterOrEqual' },
+    { label: 'Includes', value: 'Includes' },
+    { label: 'Excludes', value: 'Excludes' },
+    { label: 'Within', value: 'Within' }
+  ]
+  operatorsNumber = [
+    { label: 'None', value: 'None' },
+    { label: 'Equals', value: 'Equals' },
+    { label: 'Not Equals', value: 'NotEquals' },
+    { label: 'Less Than', value: 'LessThan' },
+    { label: 'Greater Than', value: 'GreaterThan' },
+    { label: 'Less Or Equal', value: 'LessOrEqual' },
+    { label: 'Greater Or Equal', value: 'GreaterOrEqual' },
+  ]
+  operatorsBoolean = [
+    { label: 'None', value: 'None' },
+    { label: 'Equals', value: 'Equals' },
+    { label: 'Not Equals', value: 'NotEquals' },
+  ]
+  textFields = [
+    'Name',
+    'ProductCode',
+    'Product2.Family',
+    'Product2.Sales_Order_Material__c',
+    'Product2.Item_Category__c',
+    'Product2.Item_Division__c',
+    'Product2.Description',
+    'Product2.Product_Description_French__c',
+    'Product2.Extended_Description__c',
+    'Product2.Internal_Notes__c',
+    'Product2.ProductFamilyGroup__c',
+    'Product2.Material_Group__c',
+    'Product2.Warranty_Renewal_SKU__c',
+    'Product2.Rental_Item__c',
+    'Product2.Product_Grouping__c',
+    'Product2.Override_Material__c',
+    'Product2.CurrencyIsoCode',
+    'Product2.SAP_Cross_Reference__c',
+    'Product2.MFR_Part_Number__c',
+    'Product2.Order_Conversion_Included__c',
+    'Product2.Pricing_Condition__c',
+    'Product2.SAP_Id__c',
+    'Product2.SAP_General_Item_Group__c',
+    'Product2.SAP_Unit_Of_Measure_Standard__c',
+    'Product2.SAP_Unit_Of_Measure__c',
+  ]
+  numberFields = [
+    'Product2.Cost__c',
+    'Product2.Cost_USD__c',
+    'Product2.List_Price__c',
+    'Product2.List_Price_USD__c',
+  ]
+  booleanFields = [
+    'Product2.Serialized__c',
+    'Product2.IsActive',
+    'Product2.List_Price_CAD_Active__c',
+    'Product2.List_Price_USD_Active__c',
   ]
   //Multi-Search values
   //SR1
-  SR1Field = "None";
-  SR1Operator = "None";
+  SR1Field = this.options;
+  SR1Operator = this.operators;
   SR1Input = "";
   //SR2
-  SR2Field = "None";
-  SR2Operator = "None";
+  SR2Field = this.options;
+  SR2Operator = this.operators;
   SR2Input = "";
   //SR3
-  SR3Field = "None";
-  SR3Operator = "None";
+  SR3Field = this.options;
+  SR3Operator = this.operators;
   SR3Input = "";
   //SR4
-  SR4Field = "None";
-  SR4Operator = "None";
+  SR4Field = this.options;
+  SR4Operator = this.operators;
   SR4Input = "";
   //SR5
-  SR5Field = "None";
-  SR5Operator = "None";
+  SR5Field = this.options;
+  SR5Operator = this.operators;
   SR5Input = "";
   //Mutilpe Rows Search
   queryTermMultiSearch = {};
   isLoaded = false;
+  //Sorting
+  presortingField = "";
+  presortingDir = "";
 
   connectedCallback() {
     //Get account currency and price level
@@ -129,7 +234,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
       this.isLoaded = false;
       result = JSON.parse(JSON.stringify(result));
       if(Object.keys(result).length !== 0){
-        console.log("Has results!");
+        console.log("getRecords has results!");
         result.forEach(record => {
           record.linkName = '/' + record.Id;
           record.Description = record.Product2.Description;
@@ -147,13 +252,11 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
         if (this.targetDatatable) this.targetDatatable.isLoading = false;
       } else {
         //No results, refresh the component
-        console.log("No results!");
-        this.isLoaded = false;
+        console.log("getRecords no results!");
         //Show Toast
         this.showToastFinishedSearch();
         //Stop Infinite Loading when threshold is reached
         if (this.targetDatatable) {
-          console.log("targetDatatable to false!");
           this.targetDatatable.isLoading = false;
           this.targetDatatable.enableInfiniteLoading = false;
         }
@@ -190,7 +293,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     console.log("queryTerm: " + queryTerm);
     if (isEnterKey && queryTerm) {
       console.log('Hit enter key and queryTerm NOT null!');
-      this.loadMoreStatus = '';
+      this.loadMoreStatus = 'Loading';
       if(this.targetDatatable != null){
         this.targetDatatable.enableInfiniteLoading = true;
       }
@@ -216,7 +319,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
 
   handleChange(event) {
 
-    console.log("User is changing Muti-Search!")
+    console.log("Changing Muti-Search: " + event.target.dataset.id);
 
     const elementSR1Field = this.template.querySelector('[data-id="SR1-field"]');
     const elementSR1Operator = this.template.querySelector('[data-id="SR1-operator"]');
@@ -243,11 +346,22 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
       this.queryTermMultiSearch['elementSR1'] = SR1Obj
     }
 
-    if(!elementSR1Input.value){
-      console.log("remove elementSR1")
+    if((!elementSR1Input.value) || (elementSR1Field.value == 'None') || (elementSR1Operator.value == 'None')){
       if ('elementSR1' in this.queryTermMultiSearch){
         delete this.queryTermMultiSearch['elementSR1'];
       }
+    }
+
+    if(this.textFields.includes(elementSR1Field.value)){
+      this.SR1Operator = this.operatorsText;
+    }
+
+    if(this.numberFields.includes(elementSR1Field.value)){
+      this.SR1Operator = this.operatorsNumber;
+    }
+
+    if(this.booleanFields.includes(elementSR1Field.value)){
+      this.SR1Operator = this.operatorsBoolean;
     }
 
     if(elementSR2Field.value && elementSR2Field.value != 'None' && elementSR2Operator.value  && elementSR2Operator.value != 'None' && elementSR2Input.value){
@@ -255,10 +369,22 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
       this.queryTermMultiSearch['elementSR2'] = SR2Obj
     }
 
-    if(!elementSR2Input.value){
+    if((!elementSR2Input.value) || (elementSR2Field.value == 'None') || (elementSR2Operator.value == 'None')){
       if ('elementSR2' in this.queryTermMultiSearch){
         delete this.queryTermMultiSearch['elementSR2'];
       }
+    }
+
+    if(this.textFields.includes(elementSR2Field.value)){
+      this.SR2Operator = this.operatorsText;
+    }
+
+    if(this.numberFields.includes(elementSR2Field.value)){
+      this.SR2Operator = this.operatorsNumber;
+    }
+
+    if(this.booleanFields.includes(elementSR2Field.value)){
+      this.SR2Operator = this.operatorsBoolean;
     }
 
     if(elementSR3Field.value && elementSR3Field.value != 'None' && elementSR3Operator.value  && elementSR3Operator.value != 'None' && elementSR3Input.value){
@@ -266,10 +392,22 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
       this.queryTermMultiSearch['elementSR3'] = SR3Obj
     }
 
-    if(!elementSR3Input.value){
+    if((!elementSR3Input.value) || (elementSR3Field.value == 'None') || (elementSR3Operator.value == 'None')){
       if ('elementSR3' in this.queryTermMultiSearch){
         delete this.queryTermMultiSearch['elementSR3'];
       }
+    }
+
+    if(this.textFields.includes(elementSR3Field.value)){
+      this.SR3Operator = this.operatorsText;
+    }
+
+    if(this.numberFields.includes(elementSR3Field.value)){
+      this.SR3Operator = this.operatorsNumber;
+    }
+
+    if(this.booleanFields.includes(elementSR3Field.value)){
+      this.SR3Operator = this.operatorsBoolean;
     }
 
     if(elementSR4Field.value && elementSR4Field.value != 'None' && elementSR4Operator.value  && elementSR4Operator.value != 'None' && elementSR4Input.value){
@@ -283,6 +421,18 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
       }
     }
 
+    if(this.textFields.includes(elementSR4Field.value)){
+      this.SR4Operator = this.operatorsText;
+    }
+
+    if(this.numberFields.includes(elementSR4Field.value)){
+      this.SR4Operator = this.operatorsNumber;
+    }
+
+    if(this.booleanFields.includes(elementSR4Field.value)){
+      this.SR4Operator = this.operatorsBoolean;
+    }
+
     if(elementSR5Field.value && elementSR5Field.value != 'None' && elementSR5Operator.value  && elementSR5Operator.value != 'None' && elementSR5Input.value){
       let SR5Obj = {elementSRField: elementSR5Field.value, elementSROperator: elementSR5Operator.value, elementSRInput: elementSR5Input.value};
       this.queryTermMultiSearch['elementSR5'] = SR5Obj
@@ -293,8 +443,24 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
         delete this.queryTermMultiSearch['elementSR5'];
       }
     }
+
+    if(this.textFields.includes(elementSR5Field.value)){
+      this.SR5Operator = this.operatorsText;
+    }
+
+    if(this.numberFields.includes(elementSR5Field.value)){
+      this.SR5Operator = this.operatorsNumber;
+    }
+
+    if(this.booleanFields.includes(elementSR5Field.value)){
+      this.SR5Operator = this.operatorsBoolean;
+    }
     
     console.log("queryTermMultiSearch: " + JSON.stringify(this.queryTermMultiSearch));
+
+  }
+
+  handleChangeFieldSelection(fieldName){
 
   }
 
@@ -320,7 +486,6 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     const selectedRows = event.detail.selectedRows;
     let tempPreselectedRows = [];
     let tempPreselectedPrdRows = [];
-    //console.log('selectedRows: ' + selectedRows);
     for(let i = 0; i < selectedRows.length; i++) {   
       tempPreselectedRows =[...tempPreselectedRows, selectedRows[i].Id];
       tempPreselectedPrdRows =[...tempPreselectedPrdRows, selectedRows[i].Product2Id];
@@ -333,9 +498,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
     let prdPBEMapFinalKeys = [...this.prdPBEMapFinal.keys()];
 
     if(!(prdPBEMapFinalKeys.length == 0)) {
-      //console.log("prdPBEMapFinal is NOT empty!");
       let difference = prdPBEMapFinalKeys.filter(x => !this.preselectedPrdRows.includes(x));
-      console.log("difference: " + difference);
       difference.forEach(PrdId => {
         if(this.prdPBEMapFinal.has(PrdId)) {
           this.prdPBEMapFinal.delete(PrdId);
@@ -528,6 +691,60 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
             'Did not find any record!',
     });
     this.dispatchEvent(event);
+  }
+
+  updateColumnSorting(event){
+    var fieldName = event.detail.fieldName;
+    var sortDirection = event.detail.sortDirection;
+    console.log('fieldName: ' + fieldName);
+    console.log('sortDirection: ' + sortDirection);
+    // assign the latest attribute with the sorted column fieldName and sorted direction
+    // presortingField
+    // presortingDir
+    if(this.presortingField == ""){
+      this.presortingField = fieldName;
+      this.presortingDir = sortDirection;
+    }
+    if(this.presortingField != "" && this.presortingField != fieldName){
+      console.log('switch field');
+      this.presortingField = fieldName;
+      this.presortingDir = "asc";
+      sortDirection = "asc";
+    }
+    if(this.presortingField != "" && this.presortingField == fieldName){
+      this.presortingField = fieldName;
+      let switchDir = false;
+      if(this.presortingDir == "asc"){
+        this.presortingDir = "desc";
+        sortDirection = "desc";
+        switchDir = true;
+      }
+      if(this.presortingDir == "desc" && !switchDir){
+        this.presortingDir = "asc";
+        sortDirection = "asc";
+      }
+    }
+    this.sortedBy = fieldName;
+    this.sortedDirection = sortDirection;
+    this.sortData(fieldName, sortDirection);
+  }
+
+  sortData(fieldName, sortDirection){
+    let parseData = JSON.parse(JSON.stringify(this.data));
+    // Return the value stored in the field
+    let keyValue = (a) => {
+        return a[fieldName];
+    };
+    // cheking reverse direction
+    let isReverse = sortDirection === 'asc' ? 1: -1;
+    // sorting data
+    parseData.sort((x, y) => {
+        x = keyValue(x) ? keyValue(x) : ''; // handling null values
+        y = keyValue(y) ? keyValue(y) : '';
+        // sorting values based on direction
+        return isReverse * ((x > y) - (y > x));
+    });
+    this.data = parseData;
   }
   
 }

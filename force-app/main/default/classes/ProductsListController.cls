@@ -1,10 +1,12 @@
 public class ProductsListController {
 
+    //Query Account info
     @AuraEnabled
     public static List<Quote> getAccountRecord(Id quoteId) {
         return [SELECT Id, Name, Account.Id, Account.Price_Book__c, Account.CurrencyIsoCode FROM Quote WHERE Id =: quoteId];
     }
 
+    //Query PriceBook Entry
     @AuraEnabled
     public static List<PriceBookEntry> getRecords(Integer offSetCount, String accountPB, String accountCurrency, String searchMethod, String queryTerm, String queryTermMultiSearch) {
         List<PriceBookEntry> resultPBE = new List<PriceBookEntry>();
@@ -15,7 +17,7 @@ public class ProductsListController {
                     WHERE CurrencyIsoCode =: accountCurrency AND PriceBookName__c =: accountPB AND IsActive = true
                     LIMIT 20 OFFSET :offSetCount];
         }
-        //Single text searching
+        //Text searching
         if(searchMethod == 'Searching') {
 
             System.debug('queryTerm: ' + queryTerm);
@@ -26,61 +28,103 @@ public class ProductsListController {
 
             String returnStr = SearchingMultiRowsParse(queryTermMultiSearch);
 
+            if(!String.isBlank(queryTerm)){
+                String queryProduct = 'FIND \'' + queryTerm + '\'IN ALL FIELDS RETURNING Product2(Id WHERE IsActive = true ' + returnStr + 'LIMIT 20 OFFSET :offSetCount)';
+
+                List<List<SObject>> productSearch = search.query(queryProduct);
+    
+                for(Sobject prd : productSearch[0]){
+                    prdIdSet.add(prd.Id);
+                }
+                
+                resultPBE = [
+                    SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive, Product2.Description
+                    FROM PriceBookEntry 
+                    WHERE CurrencyIsoCode = :accountCurrency AND PriceBookName__c = :accountPB AND IsActive = true AND Product2Id IN :prdIdSet];
+            }
+
             if(String.isBlank(queryTerm)){
-                System.debug('queryTerm empty');
-                queryTerm = '*';
+                String SOQLStr = 'SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive, Product2.Description FROM PriceBookEntry WHERE CurrencyIsoCode = :accountCurrency' + ' AND ' + 'PriceBookName__c = :accountPB' + ' AND IsActive = true';
+                SOQLStr = SOQLStr + returnStr + 'LIMIT 20 OFFSET :offSetCount';
+                resultPBE = Database.query(SOQLStr);
             }
 
-            String queryProduct = 'FIND \'' + queryTerm + '\'IN ALL FIELDS RETURNING Product2(Id WHERE IsActive = true ' + returnStr + 'LIMIT 20 OFFSET :offSetCount)';
-
-            List<List<SObject>> productSearch = search.query(queryProduct);
-
-            for(Sobject prd : productSearch[0]){
-                prdIdSet.add(prd.Id);
-            }
-            
-            resultPBE = [
-                SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive, Product2.Description
-                FROM PriceBookEntry 
-                WHERE CurrencyIsoCode = :accountCurrency AND PriceBookName__c = :accountPB AND IsActive = true AND Product2Id IN :prdIdSet];
-
-        }
-        //Multi-fields Searching
-        if(searchMethod == 'SearchingMultiRows') {
-            String returnStr = SearchingMultiRowsParse(queryTermMultiSearch);
-            String SOQLStr = 'SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive, Product2.Description FROM PriceBookEntry WHERE CurrencyIsoCode = :accountCurrency' + ' AND ' + 'PriceBookName__c = :accountPB' + ' AND IsActive = true';
-            SOQLStr = SOQLStr + returnStr + 'LIMIT 20 OFFSET :offSetCount';
-            resultPBE = Database.query(SOQLStr);
         }
         return resultPBE;
     }
 
+    //Create string for SOQL
     public static String SearchingMultiRowsParse(String queryTermMultiSearch) {
         String query = '';
         Map<String, rowSearchData> searchTermList = (Map<String, rowSearchData>) JSON.deserialize(queryTermMultiSearch, Map<String, rowSearchData>.class);
         //System.debug('searchTermList Size: ' + searchTermList.size());
-        //System.debug('searchTermList Values: ' + searchTermList.values());
+        System.debug('searchTermList Values: ' + searchTermList.values());
         for(rowSearchData SRD : searchTermList.values()){
+            String queryTemp = '';
+            String field = SRD.elementSRField;
             String operator;
             String keyWords;
-            if(SRD.elementSROperator == 'equal'){
-                operator = ' = ';
+            if(field == 'Product2.IsActive' || field == 'Product2.Serialized__c' ||
+            field == 'Product2.Rental_Item__c' || field == 'Product2.Cost__c' ||
+            field == 'Product2.Cost_USD__c' || field == 'Product2.List_Price__c' ||
+            field == 'Product2.List_Price_USD__c' || field == 'Product2.List_Price_CAD_Active__c' ||
+            field == 'Product2.List_Price_USD_Active__c' || field == 'Product2.Pricing_Condition__c' )
+            {
+                keyWords = '' + SRD.elementSRInput + '';
+            } else {
                 keyWords = '\'' + SRD.elementSRInput + '\'';
             }
-            if(SRD.elementSROperator == 'contain'){
+            if(SRD.elementSROperator == 'Equals'){
+                operator = ' = ';
+            }
+            if(SRD.elementSROperator == 'Contains'){
                 operator = ' LIKE ';
                 keyWords = '\'%' + SRD.elementSRInput + '%\'';
             }
-            if(query == ''){
-                query = ' AND ' + SRD.elementSRField + operator + keyWords;
+            if(SRD.elementSROperator == 'NotEquals'){
+                operator = ' != ';
             }
-            if(query != ''){
-                query = query + ' AND ' + SRD.elementSRField + operator + keyWords;
+            if(SRD.elementSROperator == 'StartsWith'){
+                operator = ' LIKE ';
+                keyWords = '\'%' + SRD.elementSRInput + '\'';
             }
+            if(SRD.elementSROperator == 'DoesNotContain'){
+                field = 'NOT ' + field;
+                operator = ' LIKE ';
+                keyWords = '\'%' + SRD.elementSRInput + '%\'';
+            }
+            if(SRD.elementSROperator == 'LessThan'){
+                operator = ' < ';
+            }
+            if(SRD.elementSROperator == 'GreaterThan'){
+                operator = ' > ';
+            }
+            if(SRD.elementSROperator == 'LessOrEqual'){
+                operator = ' <= ';
+            }
+            if(SRD.elementSROperator == 'GreaterOrEqual'){
+                operator = ' >= ';
+            }
+            if(SRD.elementSROperator == 'Includes'){
+                operator = ' INCLUDES ';
+                keyWords = '\'' + SRD.elementSRInput + '\'';
+            }
+            if(SRD.elementSROperator == 'Excludes'){
+                operator = ' EXCLUDES ';
+                keyWords = '\'' + SRD.elementSRInput + '\'';
+            }
+            if(SRD.elementSROperator == 'Within'){
+                operator = ' IN ';
+                keyWords = '\'' + SRD.elementSRInput + '\'';
+            }
+            queryTemp = ' AND ' + '(' + field + operator + keyWords + ')';
+            query += queryTemp;
         }
+        System.debug('query: ' + query);
         return query;
     }
 
+    //Create Quote Line Items
     @AuraEnabled
     public static String createQuoteLines(String quoteLines) {
 

@@ -17,8 +17,7 @@
         Customer Price Book: {accountPB} - Customer Currency: {accountCurrency}
       </span>
       <span class="slds-text-body-smalls slds-align_absolute-center">
-        We have 2 sections below for product searching. For now, they cannot work together.
-        So, when you search product, you can only use one of them.
+        We have 2 sections below for product searching. You can use them together now.
       </span>
     </div>
 
@@ -67,7 +66,7 @@
                   name="operator"
                   value={SR1Operator}
                   placeholder="Select Operator"
-                  options={operators}
+                  options={SR1Operator}
                   variant="label-hidden"
                   onchange={handleChange}
                   data-id="SR1-operator"></lightning-combobox>
@@ -115,7 +114,7 @@
                   name="operator"
                   value={SR2Operator}
                   placeholder="Select Operator"
-                  options={operators}
+                  options={SR2Operator}
                   variant="label-hidden"
                   onchange={handleChange}
                   data-id="SR2-operator"></lightning-combobox>
@@ -163,7 +162,7 @@
                   name="operator"
                   value={SR3Operator}
                   placeholder="Select Operator"
-                  options={operators}
+                  options={SR3Operator}
                   variant="label-hidden"
                   onchange={handleChange}
                   data-id="SR3-operator"></lightning-combobox>
@@ -211,7 +210,7 @@
                   name="operator"
                   value={SR4Operator}
                   placeholder="Select Operator"
-                  options={operators}
+                  options={SR4Operator}
                   variant="label-hidden"
                   onchange={handleChange}
                   data-id="SR4-operator"></lightning-combobox>
@@ -259,7 +258,7 @@
                 name="operator"
                 value={SR5Operator}
                 placeholder="Select Operator"
-                options={operators}
+                options={SR5Operator}
                 variant="label-hidden"
                 onchange={handleChange}
                 data-id="SR5-operator"></lightning-combobox>
@@ -303,7 +302,10 @@
         onloadmore={handleLoadMore} 
         selected-rows={preselectedRows}
         onrowselection={selectedRowHandler}
-        load-more-offset="20">
+        load-more-offset="20"
+        onsort={updateColumnSorting}
+        sorted-by={presortingField}
+        sorted-direction={presortingDir}>
       </lightning-datatable>
     </div>
     <div class="slds-text-body-smalls slds-align_absolute-center">
