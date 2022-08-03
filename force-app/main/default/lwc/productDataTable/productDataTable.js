@@ -16,11 +16,12 @@ const columns = [
           label: { fieldName: 'Name' },
           target: '_blank'
       },
-      fixedWidth: 150
+      fixedWidth: 120
   },
+  { label: 'Product Family', fieldName: 'Family', type: 'text', fixedWidth: 120,sortable: true},
   { label: 'SAP Code', fieldName: 'Product_SAP_Id__c', type: 'text', fixedWidth: 200, sortable: true},
-  { label: 'Unit Price', fieldName: 'UnitPrice', type: 'currency', fixedWidth: 150, sortable: true},
-  { label: 'Description', fieldName: 'Description', type: 'text', fixedWidth: 500,sortable: true}
+  { label: 'Description', fieldName: 'Description', type: 'text', fixedWidth: 300,sortable: true},
+  { label: 'Unit Price', fieldName: 'UnitPrice', type: 'currency', fixedWidth: 120, sortable: true}
 ];
 
 export default class ProductDataTable extends NavigationMixin(LightningElement) {
@@ -238,6 +239,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
         result.forEach(record => {
           record.linkName = '/' + record.Id;
           record.Description = record.Product2.Description;
+          record.Family = record.Product2.Family;
         });
         this.data = [...this.data, ...result];
         this.error = undefined;

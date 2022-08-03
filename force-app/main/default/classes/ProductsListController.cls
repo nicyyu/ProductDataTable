@@ -12,7 +12,7 @@ public class ProductsListController {
         List<PriceBookEntry> resultPBE = new List<PriceBookEntry>();
         //Default loading Price Book Entries
         if(searchMethod == 'Loading') {
-            resultPBE = [SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive, Product2.Description
+            resultPBE = [SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive, Product2.Description, Product2.Family
                     FROM PriceBookEntry 
                     WHERE CurrencyIsoCode =: accountCurrency AND PriceBookName__c =: accountPB AND IsActive = true
                     LIMIT 20 OFFSET :offSetCount];
@@ -38,13 +38,13 @@ public class ProductsListController {
                 }
                 
                 resultPBE = [
-                    SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive, Product2.Description
+                    SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive, Product2.Description, Product2.Family
                     FROM PriceBookEntry 
                     WHERE CurrencyIsoCode = :accountCurrency AND PriceBookName__c = :accountPB AND IsActive = true AND Product2Id IN :prdIdSet];
             }
 
             if(String.isBlank(queryTerm)){
-                String SOQLStr = 'SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive, Product2.Description FROM PriceBookEntry WHERE CurrencyIsoCode = :accountCurrency' + ' AND ' + 'PriceBookName__c = :accountPB' + ' AND IsActive = true';
+                String SOQLStr = 'SELECT Id, Name, Product2Id, Product2.Name, Product_List_Price__c, UnitPrice, ProductCode, Product_SAP_Id__c, IsActive, Product2.Description, Product2.Family FROM PriceBookEntry WHERE CurrencyIsoCode = :accountCurrency' + ' AND ' + 'PriceBookName__c = :accountPB' + ' AND IsActive = true';
                 SOQLStr = SOQLStr + returnStr + 'LIMIT 20 OFFSET :offSetCount';
                 resultPBE = Database.query(SOQLStr);
             }
