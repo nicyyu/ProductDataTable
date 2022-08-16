@@ -21,7 +21,7 @@ const columns = [
   { label: 'Product Family', fieldName: 'Family', type: 'text', fixedWidth: 120,sortable: true},
   { label: 'SAP Code', fieldName: 'Product_SAP_Id__c', type: 'text', fixedWidth: 200, sortable: true},
   { label: 'Description', fieldName: 'Description', type: 'text', fixedWidth: 300,sortable: true},
-  { label: 'Unit Price', fieldName: 'UnitPrice', type: 'currency', fixedWidth: 120, sortable: true}
+  { label: 'Unit Price', fieldName: 'UnitPrice', type: 'currency', fixedWidth: 120, sortable: true, cellAttributes: { alignment: 'left' } }
 ];
 
 export default class ProductDataTable extends NavigationMixin(LightningElement) {
@@ -291,9 +291,10 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
 
   handleKeyUp(event) {
     const isEnterKey = event.keyCode === 13;
-    let queryTerm = event.target.value;
-    console.log("queryTerm: " + queryTerm);
-    if (isEnterKey && queryTerm) {
+    let queryTermLocal = event.target.value;
+    this.queryTerm = queryTermLocal;
+    console.log("queryTerm: " + this.queryTerm);
+    if (isEnterKey && queryTermLocal) {
       console.log('Hit enter key and queryTerm NOT null!');
       this.loadMoreStatus = 'Loading';
       if(this.targetDatatable != null){
@@ -302,10 +303,10 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
       this.searchMethod = "Searching";
       this.data = [];
       this.offSetCount = 0;
-      this.queryTerm = queryTerm;
+      this.queryTerm = queryTermLocal;
       this.getRecords();
     }
-    if (isEnterKey && !queryTerm) {
+    if (isEnterKey && !queryTermLocal) {
       console.log('Hit enter key and queryTerm null!');
       this.loadMoreStatus = '';
       if(this.targetDatatable != null){
@@ -314,7 +315,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
       this.searchMethod = "Loading";
       this.data = [];
       this.offSetCount = 0;
-      this.queryTerm = queryTerm;
+      this.queryTerm = queryTermLocal;
       this.getRecords();
     }
   }
