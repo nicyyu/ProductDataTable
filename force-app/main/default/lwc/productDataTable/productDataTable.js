@@ -586,7 +586,7 @@ export default class ProductDataTable extends NavigationMixin(LightningElement) 
 
     this.PBEListFinal.forEach(peb => {
       if(peb.Comment == '') {
-        peb.Comment = 'Empty';
+        peb.Comment = '';
       }
       if(peb.Discount == '') {
         peb.Discount = 0;

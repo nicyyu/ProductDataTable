@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>ProductsListController</members>
+        <members>ProductsListControllerTest</members>
+        <members>utility_TestDataFactory</members>
+        <members>TestUtility_TestDataFactory</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>productDataTable</members>
+        <name>LightningComponentBundle</name>
+    </types>
+    <version>53.0</version>
+</Package>

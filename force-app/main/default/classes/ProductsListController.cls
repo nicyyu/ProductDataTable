@@ -3,7 +3,7 @@ public class ProductsListController {
     //Query Account info
     @AuraEnabled
     public static List<Quote> getAccountRecord(Id quoteId) {
-        return [SELECT Id, Name, Account.Id, Account.Price_Book__c, Account.CurrencyIsoCode FROM Quote WHERE Id =: quoteId];
+        return [SELECT Id, Name, Account.Id, Account.Price_Book__c, Account.CurrencyIsoCode, Account.GroupPricingLevel__c FROM Quote WHERE Id =: quoteId];
     }
 
     //Query PriceBook Entry
@@ -127,6 +127,8 @@ public class ProductsListController {
     //Create Quote Line Items
     @AuraEnabled
     public static String createQuoteLines(String quoteLines) {
+
+        System.debug('quoteLines: ' + quoteLines);
 
         List<QuoteLineItem> QLIList = new List<QuoteLineItem>();
 
